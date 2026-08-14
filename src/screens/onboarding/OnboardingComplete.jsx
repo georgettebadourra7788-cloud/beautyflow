@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import MaterialIcon from "../../components/icons/MaterialIcon.jsx";
+import { useSalon } from "../../lib/SalonContext.jsx";
 
 export default function OnboardingComplete() {
   const navigate = useNavigate();
+  const { salon } = useSalon();
 
   return (
     <main className="flex-grow flex flex-col max-w-md md:max-w-lg w-full mx-auto relative overflow-hidden min-h-screen bg-surface-bright">
@@ -18,7 +20,8 @@ export default function OnboardingComplete() {
             Your BeautyFlow workspace is ready.
           </h1>
           <p className="font-body-lg text-[15px] text-on-surface-variant max-w-[300px] mx-auto opacity-90">
-            We've tailored the experience to Glow Beauty Studio. You're all set to start recovering missed bookings.
+            We've tailored the experience to {salon?.name ?? "your salon"}. You're all set to start recovering
+            missed bookings.
           </p>
         </div>
       </div>

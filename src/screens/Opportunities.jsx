@@ -1,40 +1,59 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import MaterialIcon from "../components/icons/MaterialIcon.jsx";
 import Avatar from "../components/Avatar.jsx";
+import { useSalon } from "../lib/SalonContext.jsx";
+import { listLeads } from "../lib/api/leads.js";
 
-const OPPORTUNITIES = [
-  {
-    name: "Sarah Johnson",
-    initial: "S",
-    service: "Balayage • Instagram",
-    price: "$150",
-    intent: "High Intent",
-    lastContact: "Last contact: 2 hours ago",
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDGoybtSg7E-g1vESs9sq9vRMYJCBtByt6zIIYDcUQya4CCEI9GAMk_r8KFaxky9wYiQovjDEL1uzkWh2jXDY5vzzcMdH3j5zs3vmx7t8BqgNJN6fYWCijKEF6wgjo4jHhkJj72M1NCY1zgYIWkjGgV4LgKmW6nlEEtBDnd1FpWrDffEN_W8_66lvRDhH3CuHRc2i61VxccZ0ES1VDpJ_mhH4mm6GA4_EsT7amUUSzSJudBfLuLX9jb",
-  },
-  {
-    name: "Maya Williams",
-    initial: "M",
-    service: "Hair Color • WhatsApp",
-    price: "$80",
-    intent: "High Intent",
-    lastContact: "Last contact: Yesterday",
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDawh42m39saD87xA4nyZ215PBjcgXEtwLB18kpoUeIoOx69z-Wfnp-h0Fiuudr4nL0OkXutIFIzjAqnUBWVwvrNy7TcrMWncOu_DMYaDzzE3cIR1pdxAm5N7Ikrmq5gCItSNT7J1fnGlYQTjCfwq8-GH55Ep2_2dlNA2O6pnxse-aBWGaqexhU43XaHf9BWKbWb9XSymyAwQsY8kSmPXqG2BMdZE6xvl_myXAgCVjQz8aBms4cBjND",
-  },
-  {
-    name: "Emma Davis",
-    initial: "E",
-    service: "Facial • Website",
-    price: "$120",
-    intent: "Medium Intent",
-    lastContact: "Last contact: 2 days ago",
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuB_pTxrSak4Z_BQEiFcRu-czXoDg3_5BfLE594czT0hnfRomtfi1NomZE0lJbT2c5PQhBmQvdAqOlFDcnxAsd2cFN-PWyS2CnFYnJOtjzeGEjM-UVJssYsilmXwx6qqGfTRygbimIZ0kK11NkZglC5XTa5w6RWYxvocF6D2W3tpZNbjB9stAi4jRQIovQEixCYSXJ6-Nhfh8hoHl1vqgFo7cP49yclwLRFM2ZK0pWkZf3whjvMl_vmc",
-  },
-];
+// Simple placeholder heuristic until real lead scoring exists: leads worth
+// $100+ are flagged "High Intent". No AI/automation involved.
+const HIGH_INTENT_THRESHOLD = 100;
+
+function timeAgo(dateString) {
+  if (!dateString) return null;
+  const diffMs = Date.now() - new Date(dateString).getTime();
+  const hours = Math.round(diffMs / 3600000);
+  if (hours < 1) return "Just now";
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  if (days === 1) return "Yesterday";
+  return `${days}d ago`;
+}
 
 export default function Opportunities() {
+  const { salon } = useSalon();
+  const navigate = useNavigate();
+  const [leads, setLeads] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!salon) return;
+    setLoading(true);
+    listLeads(salon.id).then(({ data }) => {
+      setLeads(data ?? []);
+      setLoading(false);
+    });
+  }, [salon]);
+
+  const openLeads = leads.filter((l) => l.status === "new" || l.status === "follow_up");
+  const potentialRevenue = openLeads.reduce((sum, l) => sum + (Number(l.potential_value) || 0), 0);
+  const highIntentCount = openLeads.filter((l) => (Number(l.potential_value) || 0) >= HIGH_INTENT_THRESHOLD).length;
+  const followUpsDue = leads.filter((l) => l.status === "follow_up").length;
+  const topOpportunities = [...openLeads]
+    .sort((a, b) => (Number(b.potential_value) || 0) - (Number(a.potential_value) || 0))
+    .slice(0, 5);
+
+  const bookedThisMonth = leads.filter((l) => {
+    if (l.status !== "booked") return false;
+    const d = new Date(l.created_at);
+    const now = new Date();
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  });
+  const recoveredRevenue = bookedThisMonth.reduce((sum, l) => sum + (Number(l.potential_value) || 0), 0);
+  const totalForBar = potentialRevenue + recoveredRevenue || 1;
+  const potentialPct = Math.round((potentialRevenue / totalForBar) * 100);
+  const recoveredPct = 100 - potentialPct;
+
   return (
     <>
       <header className="bg-surface flex justify-between items-center px-container-padding pt-stack-lg pb-stack-md w-full sticky top-0 z-30">
@@ -52,7 +71,9 @@ export default function Opportunities() {
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary-container opacity-20 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
           <div className="relative z-10 space-y-4">
             <div>
-              <h2 className="font-headline-md text-headline-md text-on-surface">7 Customers Ready to Recover</h2>
+              <h2 className="font-headline-md text-headline-md text-on-surface">
+                {loading ? "…" : openLeads.length} Customer{openLeads.length === 1 ? "" : "s"} Ready to Recover
+              </h2>
               <p className="font-body-md text-body-md text-on-surface-variant mt-1">
                 These customers showed interest but haven't booked yet.
               </p>
@@ -62,19 +83,21 @@ export default function Opportunities() {
                 <span className="font-label-lg text-label-lg text-on-surface-variant uppercase tracking-widest">
                   Potential Revenue
                 </span>
-                <p className="font-headline-md text-headline-md text-primary">$1,240</p>
+                <p className="font-headline-md text-headline-md text-primary">
+                  ${loading ? "—" : potentialRevenue.toLocaleString()}
+                </p>
               </div>
               <div className="space-y-1">
                 <span className="font-label-lg text-label-lg text-on-surface-variant uppercase tracking-widest">
                   High-Intent Leads
                 </span>
-                <p className="font-headline-md text-headline-md text-primary">4</p>
+                <p className="font-headline-md text-headline-md text-primary">{loading ? "—" : highIntentCount}</p>
               </div>
             </div>
             <div className="pt-2">
               <div className="inline-flex items-center gap-2 bg-error-container text-on-error-container px-3 py-1.5 rounded-full">
                 <MaterialIcon name="schedule" className="text-[16px]" />
-                <span className="font-label-lg text-label-lg">Follow-ups Due: 7</span>
+                <span className="font-label-lg text-label-lg">Follow-ups Due: {loading ? "—" : followUpsDue}</span>
               </div>
             </div>
           </div>
@@ -82,46 +105,65 @@ export default function Opportunities() {
 
         <section className="space-y-stack-md">
           <h3 className="font-headline-md text-[20px] leading-tight text-on-surface">Top Opportunities</h3>
-          <div className="space-y-4">
-            {OPPORTUNITIES.map((opp) => (
-              <article
-                key={opp.name}
-                className="bg-surface-container-lowest rounded-[24px] p-5 shadow-[0px_10px_30px_rgba(45,45,45,0.05)] flex flex-col gap-4"
-              >
-                <div className="flex justify-between items-start">
-                  <div className="flex gap-3">
-                    <Avatar src={opp.avatar} alt={opp.name} initial={opp.initial} />
-                    <div>
-                      <h4 className="font-label-lg text-body-lg text-on-surface font-semibold">{opp.name}</h4>
-                      <p className="font-body-md text-label-lg text-on-surface-variant">{opp.service}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-label-lg text-label-lg text-on-surface font-semibold">{opp.price}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span
-                    className={`px-2 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1 ${
-                      opp.intent === "High Intent"
-                        ? "bg-surface-container text-on-surface"
-                        : "bg-surface-variant text-on-surface-variant"
-                    }`}
+
+          {loading ? (
+            <p className="font-body-md text-body-md text-on-surface-variant">Loading…</p>
+          ) : topOpportunities.length === 0 ? (
+            <div className="bg-surface-container-lowest rounded-[24px] p-8 soft-shadow border border-surface-variant text-center">
+              <MaterialIcon name="trending_up" className="text-on-surface-variant text-4xl mb-3" />
+              <p className="font-body-md text-body-md text-on-surface-variant">
+                No open opportunities yet. New and follow-up leads will show up here.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {topOpportunities.map((lead) => {
+                const highIntent = (Number(lead.potential_value) || 0) >= HIGH_INTENT_THRESHOLD;
+                return (
+                  <article
+                    key={lead.id}
+                    className="bg-surface-container-lowest rounded-[24px] p-5 shadow-[0px_10px_30px_rgba(45,45,45,0.05)] flex flex-col gap-4"
                   >
-                    {opp.intent === "High Intent" && <span className="text-[12px]">🔥</span>}
-                    {opp.intent}
-                  </span>
-                  <span className="font-label-sm text-label-sm text-on-surface-variant ml-auto">{opp.lastContact}</span>
-                </div>
-                <button className="w-full py-3 mt-1 border border-outline-variant rounded-xl font-label-lg text-label-lg text-on-surface hover:bg-surface-variant transition-colors">
-                  Review
-                </button>
-              </article>
-            ))}
-          </div>
-          <button className="w-full py-4 bg-primary-container text-on-primary-container font-label-lg text-label-lg rounded-xl hover:opacity-90 transition-opacity mt-4 shadow-sm">
-            Review All Opportunities
-          </button>
+                    <div className="flex justify-between items-start">
+                      <div className="flex gap-3">
+                        <Avatar initial={lead.customer_name.charAt(0).toUpperCase()} alt={lead.customer_name} />
+                        <div>
+                          <h4 className="font-label-lg text-body-lg text-on-surface font-semibold">{lead.customer_name}</h4>
+                          <p className="font-body-md text-label-lg text-on-surface-variant">
+                            {[lead.service, lead.source].filter(Boolean).join(" • ") || "—"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-label-lg text-label-lg text-on-surface font-semibold">
+                          {lead.potential_value ? `$${lead.potential_value}` : "—"}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span
+                        className={`px-2 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1 ${
+                          highIntent ? "bg-surface-container text-on-surface" : "bg-surface-variant text-on-surface-variant"
+                        }`}
+                      >
+                        {highIntent && <span className="text-[12px]">🔥</span>}
+                        {highIntent ? "High Intent" : "Medium Intent"}
+                      </span>
+                      <span className="font-label-sm text-label-sm text-on-surface-variant ml-auto">
+                        {lead.last_contact_at ? `Last contact: ${timeAgo(lead.last_contact_at)}` : "Not contacted yet"}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => navigate(`/conversations/${lead.id}`)}
+                      className="w-full py-3 mt-1 border border-outline-variant rounded-xl font-label-lg text-label-lg text-on-surface hover:bg-surface-variant transition-colors"
+                    >
+                      Review
+                    </button>
+                  </article>
+                );
+              })}
+            </div>
+          )}
         </section>
 
         <section className="bg-surface-container-lowest rounded-[24px] p-6 shadow-[0px_10px_30px_rgba(45,45,45,0.05)] space-y-5">
@@ -131,23 +173,23 @@ export default function Opportunities() {
               <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest block mb-1">
                 Bookings
               </span>
-              <span className="font-headline-md text-[20px] text-on-surface">18</span>
+              <span className="font-headline-md text-[20px] text-on-surface">{loading ? "—" : bookedThisMonth.length}</span>
             </div>
             <div>
               <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest block mb-1">
                 Revenue
               </span>
-              <span className="font-headline-md text-[20px] text-primary">$2,350</span>
+              <span className="font-headline-md text-[20px] text-primary">${loading ? "—" : recoveredRevenue.toLocaleString()}</span>
             </div>
           </div>
           <div className="space-y-2 pt-2">
             <div className="flex justify-between font-label-sm text-label-sm">
-              <span className="text-on-surface-variant">Potential ($1,240)</span>
-              <span className="text-primary font-semibold">Recovered ($2,350)</span>
+              <span className="text-on-surface-variant">Potential (${potentialRevenue.toLocaleString()})</span>
+              <span className="text-primary font-semibold">Recovered (${recoveredRevenue.toLocaleString()})</span>
             </div>
             <div className="h-2 w-full bg-surface-container rounded-full overflow-hidden flex">
-              <div className="h-full bg-secondary-fixed-dim" style={{ width: "34%" }} />
-              <div className="h-full bg-primary" style={{ width: "66%" }} />
+              <div className="h-full bg-secondary-fixed-dim" style={{ width: `${potentialPct}%` }} />
+              <div className="h-full bg-primary" style={{ width: `${recoveredPct}%` }} />
             </div>
           </div>
         </section>

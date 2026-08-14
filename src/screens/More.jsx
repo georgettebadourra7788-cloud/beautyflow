@@ -1,18 +1,29 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import MaterialIcon from "../components/icons/MaterialIcon.jsx";
+import { useAuth } from "../lib/AuthContext.jsx";
 
 const ITEMS = [
   { icon: "store", label: "Salon Setup", to: "/onboarding/salon-info", enabled: true },
   { icon: "settings", label: "Settings", enabled: false },
   { icon: "credit_card", label: "Billing", enabled: false },
-  { icon: "logout", label: "Log Out", enabled: false },
 ];
 
 export default function More() {
+  const { signOut, profile } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogOut = async () => {
+    await signOut();
+    navigate("/login", { replace: true });
+  };
+
   return (
     <>
       <header className="px-container-padding pt-stack-lg pb-stack-md bg-surface sticky top-0 z-30">
         <h1 className="font-headline-lg text-headline-lg text-on-surface">More</h1>
+        {profile?.full_name && (
+          <p className="font-body-md text-body-md text-on-surface-variant mt-1">Signed in as {profile.full_name}</p>
+        )}
       </header>
       <main className="px-container-padding pb-40 flex flex-col gap-stack-md">
         {ITEMS.map((item) =>
@@ -41,6 +52,14 @@ export default function More() {
             </div>
           )
         )}
+
+        <button
+          onClick={handleLogOut}
+          className="bg-surface-container-lowest rounded-2xl p-5 soft-shadow border border-surface-variant/50 flex items-center gap-4 hover:bg-surface-container transition-colors text-left"
+        >
+          <MaterialIcon name="logout" className="text-error" />
+          <span className="font-body-lg text-body-lg text-error font-semibold">Log Out</span>
+        </button>
       </main>
     </>
   );

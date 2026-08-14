@@ -1,44 +1,67 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import FloatingInput from "../../components/FloatingInput.jsx";
 import MaterialIcon from "../../components/icons/MaterialIcon.jsx";
 import OnboardingLayout from "./OnboardingLayout.jsx";
-
-function FloatingInput({ id, label, type = "text", value, onChange }) {
-  return (
-    <div className="relative">
-      <input
-        id={id}
-        type={type}
-        value={value}
-        onChange={onChange}
-        placeholder={label}
-        className="block w-full px-0 py-3 border-0 border-b border-outline-variant bg-transparent focus:ring-0 focus:border-primary peer text-on-surface font-body-lg placeholder-transparent"
-      />
-      <label
-        htmlFor={id}
-        className="absolute left-0 -top-2.5 text-on-surface-variant font-label-lg text-label-lg transition-all peer-placeholder-shown:text-body-lg peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-label-lg peer-focus:text-primary"
-      >
-        {label}
-      </label>
-    </div>
-  );
-}
+import { useAuth } from "../../lib/AuthContext.jsx";
+import { useSalon } from "../../lib/SalonContext.jsx";
+import { supabase } from "../../lib/supabaseClient.js";
+import { createSalon } from "../../lib/api/salons.js";
 
 export default function StepSalonInfo() {
   const navigate = useNavigate();
-  const [salonName, setSalonName] = useState("Glow Beauty Studio");
-  const [ownerName, setOwnerName] = useState("Sarah");
-  const [phone, setPhone] = useState("+1 555 123 4567");
+  const { user, profile, refreshProfile } = useAuth();
+  const { setSalon } = useSalon();
+  const [salonName, setSalonName] = useState("");
+  const [ownerName, setOwnerName] = useState(profile?.full_name ?? "");
+  const [phone, setPhone] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleContinue = async () => {
+    setError("");
+    if (!salonName.trim()) {
+      setError("Salon name is required.");
+      return;
+    }
+    setSubmitting(true);
+
+    if (ownerName.trim() && ownerName !== profile?.full_name) {
+      await supabase.from("profiles").update({ full_name: ownerName.trim() }).eq("id", user.id);
+      refreshProfile();
+    }
+
+    const { data, error: createError } = await createSalon({
+      ownerId: user.id,
+      name: salonName.trim(),
+      phone: phone.trim() || null,
+    });
+
+    setSubmitting(false);
+    if (createError) {
+      setError(createError.message);
+      return;
+    }
+    setSalon(data);
+    navigate("/onboarding/services");
+  };
 
   return (
-    <OnboardingLayout step={1} onContinue={() => navigate("/onboarding/services")}>
+    <OnboardingLayout
+      step={1}
+      totalSteps={3}
+      onContinue={handleContinue}
+      continueDisabled={submitting}
+      continueLabel={submitting ? "SAVING…" : "CONTINUE"}
+      error={error}
+    >
       <section className="bg-surface-container-lowest rounded-[24px] p-6 soft-shadow border border-outline-variant/30">
         <div className="flex items-center justify-between mb-stack-md">
           <h2 className="font-headline-md text-headline-md text-primary">Salon Information</h2>
           <MaterialIcon name="check_circle" filled className="text-primary-container" />
         </div>
         <div className="space-y-stack-md">
-          <FloatingInput id="salonName" label="Salon Name" value={salonName} onChange={(e) => setSalonName(e.target.value)} />
+          <FloatingInput id="salonName" label="Salon Name" required value={salonName} onChange={(e) => setSalonName(e.target.value)} />
           <FloatingInput id="ownerName" label="Owner Name" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} />
           <FloatingInput
             id="phoneNumber"
@@ -56,8 +79,8 @@ export default function StepSalonInfo() {
           <MaterialIcon name="spa" className="text-outline-variant" />
         </div>
         <div className="bg-surface-container-lowest rounded-[24px] p-6 soft-shadow flex justify-between items-center">
-          <h2 className="font-headline-md text-headline-md text-on-surface-variant">Opening Hours</h2>
-          <MaterialIcon name="schedule" className="text-outline-variant" />
+          <h2 className="font-headline-md text-headline-md text-on-surface-variant">Business Information</h2>
+          <MaterialIcon name="storefront" className="text-outline-variant" />
         </div>
       </section>
     </OnboardingLayout>

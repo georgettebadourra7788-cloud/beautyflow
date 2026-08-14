@@ -1,16 +1,18 @@
 import MaterialIcon from "../../components/icons/MaterialIcon.jsx";
 
-const TOTAL_STEPS = 5;
-
 export default function OnboardingLayout({
   step,
+  totalSteps = 5,
   title = "Set Up Your Salon",
   subtitle = "Let's personalize BeautyFlow for your business.",
   continueLabel = "CONTINUE",
   continueIcon = "arrow_forward",
+  continueDisabled = false,
+  error,
   onContinue,
   children,
 }) {
+  const TOTAL_STEPS = totalSteps;
   return (
     <div className="w-full max-w-md md:max-w-lg mx-auto min-h-screen flex flex-col bg-surface relative shadow-2xl md:shadow-none">
       <header className="pt-12 px-container-padding pb-stack-lg flex-shrink-0">
@@ -39,9 +41,11 @@ export default function OnboardingLayout({
               ))}
             </div>
           </div>
+          {error && <p className="font-body-md text-body-md text-error mb-3">{error}</p>}
           <button
             onClick={onContinue}
-            className="w-full bg-primary-container text-on-primary-container font-label-lg text-label-lg py-4 rounded-xl flex justify-center items-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all mb-4"
+            disabled={continueDisabled}
+            className="w-full bg-primary-container text-on-primary-container font-label-lg text-label-lg py-4 rounded-xl flex justify-center items-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all mb-4 disabled:opacity-50"
           >
             {continueLabel}
             <MaterialIcon name={continueIcon} className="text-[18px]" />
