@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+/* Self-hosted fonts (no CDN dependency): exact same families/weights as the
+   Stitch export used from Google Fonts. */
+@import "@fontsource/playfair-display/400.css";
+@import "@fontsource/playfair-display/600.css";
+@import "@fontsource/playfair-display/700.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "material-symbols/outlined.css";
+
+/* ---- BeautyFlow design tokens (from Stitch export: Haute-Modern Professional) ---- */
+@theme {
+  --color-surface: #fbf9f9;
+  --color-surface-dim: #dbdad9;
+  --color-surface-bright: #fbf9f9;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f5f3f3;
+  --color-surface-container: #efeded;
+  --color-surface-container-high: #e9e8e7;
+  --color-surface-container-highest: #e3e2e2;
+  --color-surface-variant: #e3e2e2;
+  --color-on-surface: #1b1c1c;
+  --color-on-surface-variant: #4f4444;
+  --color-inverse-surface: #303031;
+  --color-inverse-on-surface: #f2f0f0;
+  --color-outline: #817474;
+  --color-outline-variant: #d3c3c2;
+  --color-surface-tint: #735858;
+
+  --color-primary: #735858;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #eac7c7;
+  --color-on-primary-container: #6c5252;
+  --color-inverse-primary: #e1bebe;
+  --color-primary-fixed: #fedada;
+  --color-primary-fixed-dim: #e1bebe;
+  --color-on-primary-fixed: #2a1617;
+  --color-on-primary-fixed-variant: #594141;
+
+  --color-secondary: #5f5e5e;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #e4e2e1;
+  --color-on-secondary-container: #656464;
+  --color-secondary-fixed: #e4e2e1;
+  --color-secondary-fixed-dim: #c8c6c6;
+  --color-on-secondary-fixed: #1b1c1c;
+  --color-on-secondary-fixed-variant: #474747;
+
+  --color-tertiary: #735c00;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #f3cb51;
+  --color-on-tertiary-container: #6c5500;
+  --color-tertiary-fixed: #ffe088;
+  --color-tertiary-fixed-dim: #e9c349;
+  --color-on-tertiary-fixed: #241a00;
+  --color-on-tertiary-fixed-variant: #574500;
+
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  --color-background: #fbf9f9;
+  --color-on-background: #1b1c1c;
+
+  /* Typography */
+  --font-display: "Playfair Display", serif;
+  --font-headline-lg: "Playfair Display", serif;
+  --font-headline-md: "Playfair Display", serif;
+  --font-body-lg: "Inter", sans-serif;
+  --font-body-md: "Inter", sans-serif;
+  --font-label-lg: "Inter", sans-serif;
+  --font-label-sm: "Inter", sans-serif;
+
+  --text-display: 40px;
+  --text-display--line-height: 48px;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 700;
+
+  --text-headline-lg: 30px;
+  --text-headline-lg--line-height: 36px;
+  --text-headline-lg--font-weight: 600;
+
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 32px;
+  --text-headline-md--font-weight: 600;
+
+  --text-body-lg: 16px;
+  --text-body-lg--line-height: 24px;
+  --text-body-lg--font-weight: 400;
+
+  --text-body-md: 14px;
+  --text-body-md--line-height: 20px;
+  --text-body-md--font-weight: 400;
+
+  --text-label-lg: 12px;
+  --text-label-lg--line-height: 16px;
+  --text-label-lg--letter-spacing: 0.05em;
+  --text-label-lg--font-weight: 600;
+
+  --text-label-sm: 10px;
+  --text-label-sm--line-height: 12px;
+  --text-label-sm--font-weight: 500;
+
+  /* Spacing */
+  --spacing-container-padding: 24px;
+  --spacing-stack-sm: 8px;
+  --spacing-stack-md: 16px;
+  --spacing-stack-lg: 24px;
+  --spacing-gutter: 16px;
+  --spacing-safe: env(safe-area-inset-bottom, 20px);
+
+  /* Radius */
+  --radius-2xl: 1.5rem;
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+.soft-shadow {
+  box-shadow: 0px 10px 30px rgba(45, 45, 45, 0.05);
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
