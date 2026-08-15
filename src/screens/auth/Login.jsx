@@ -30,8 +30,8 @@ export default function Login() {
     <div className="min-h-screen bg-surface flex flex-col justify-center px-container-padding">
       <div className="w-full max-w-sm mx-auto">
         <div className="mb-stack-lg text-center">
-          <div className="w-14 h-14 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mx-auto mb-stack-md font-headline-lg">
-            B
+          <div className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-primary-container text-on-primary-container mb-stack-md font-headline-md text-headline-md tracking-tight">
+            BeautyFlow
           </div>
           <h1 className="font-display text-[34px] leading-tight text-primary mb-stack-sm">Welcome back</h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant">Log in to your BeautyFlow workspace.</p>
