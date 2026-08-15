@@ -32,6 +32,19 @@ export default function SideNav() {
           </NavLink>
         ))}
       </div>
+      <NavLink
+        to="/more"
+        title="More"
+        className={({ isActive }) =>
+          `p-3 rounded-xl transition-colors mt-auto ${
+            isActive
+              ? "bg-primary-container text-on-primary-container shadow-sm"
+              : "text-secondary hover:bg-surface-container"
+          }`
+        }
+      >
+        {({ isActive }) => <MaterialIcon name="more_horiz" filled={isActive} />}
+      </NavLink>
     </div>
   );
 }
