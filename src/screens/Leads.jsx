@@ -5,7 +5,7 @@ import Avatar from "../components/Avatar.jsx";
 import FloatingInput from "../components/FloatingInput.jsx";
 import FloatingSelect from "../components/FloatingSelect.jsx";
 import { useSalon } from "../lib/SalonContext.jsx";
-import { listLeads, createLead } from "../lib/api/leads.js";
+import { listLeads, createLead, updateLead, deleteLead } from "../lib/api/leads.js";
 
 const SOURCE_OPTIONS = [
   { value: "instagram", label: "Instagram" },
@@ -43,14 +43,24 @@ const STATUS_META = {
   lost: { dot: "bg-outline", label: "Lost" },
 };
 
-function AddLeadModal({ onClose, onCreated, salonId }) {
-  const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [service, setService] = useState("");
-  const [source, setSource] = useState("manual");
-  const [potentialValue, setPotentialValue] = useState("");
-  const [status, setStatus] = useState("new");
-  const [lastContactAt, setLastContactAt] = useState("");
+// Converts a stored ISO timestamp to the local "YYYY-MM-DDTHH:mm" value a
+// <input type="datetime-local"> expects.
+function toDateTimeLocalValue(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function LeadFormModal({ onClose, onSaved, salonId, initialLead }) {
+  const isEdit = Boolean(initialLead);
+  const [customerName, setCustomerName] = useState(initialLead?.customer_name ?? "");
+  const [customerPhone, setCustomerPhone] = useState(initialLead?.customer_phone ?? "");
+  const [service, setService] = useState(initialLead?.service ?? "");
+  const [source, setSource] = useState(initialLead?.source ?? "manual");
+  const [potentialValue, setPotentialValue] = useState(initialLead?.potential_value ?? "");
+  const [status, setStatus] = useState(initialLead?.status ?? "new");
+  const [lastContactAt, setLastContactAt] = useState(toDateTimeLocalValue(initialLead?.last_contact_at));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -59,21 +69,24 @@ function AddLeadModal({ onClose, onCreated, salonId }) {
     if (!customerName.trim()) return;
     setSubmitting(true);
     setError("");
-    const { data, error: createError } = await createLead(salonId, {
+    const payload = {
       customerName: customerName.trim(),
       customerPhone: customerPhone.trim(),
       service: service.trim(),
       source,
-      potentialValue: potentialValue ? Number(potentialValue) : null,
+      potentialValue: potentialValue !== "" ? Number(potentialValue) : null,
       status,
       lastContactAt: lastContactAt ? new Date(lastContactAt).toISOString() : null,
-    });
+    };
+    const { data, error: saveError } = isEdit
+      ? await updateLead(initialLead.id, payload)
+      : await createLead(salonId, payload);
     setSubmitting(false);
-    if (createError) {
-      setError(createError.message);
+    if (saveError) {
+      setError(saveError.message);
       return;
     }
-    onCreated(data);
+    onSaved(data);
   };
 
   return (
@@ -83,7 +96,7 @@ function AddLeadModal({ onClose, onCreated, salonId }) {
         className="w-full max-w-sm bg-surface-container-lowest rounded-[24px] p-6 soft-shadow border border-outline-variant/30 space-y-stack-md max-h-[85vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between">
-          <h2 className="font-headline-md text-headline-md text-primary">Add Lead</h2>
+          <h2 className="font-headline-md text-headline-md text-primary">{isEdit ? "Edit Lead" : "Add Lead"}</h2>
           <button type="button" aria-label="Close" onClick={onClose} className="text-on-surface-variant">
             <MaterialIcon name="close" />
           </button>
@@ -112,9 +125,46 @@ function AddLeadModal({ onClose, onCreated, salonId }) {
           disabled={submitting}
           className="w-full bg-primary-container text-on-primary-container font-label-lg text-label-lg py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
         >
-          {submitting ? "Saving…" : "Save Lead"}
+          {submitting ? "Saving…" : isEdit ? "Save Changes" : "Save Lead"}
         </button>
       </form>
+    </div>
+  );
+}
+
+function ConfirmDeleteModal({ lead, onCancel, onConfirm, deleting, error }) {
+  return (
+    <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center bg-black/40 px-4 pb-4 md:pb-0">
+      <div className="w-full max-w-sm bg-surface-container-lowest rounded-[24px] p-6 soft-shadow border border-outline-variant/30 space-y-stack-md">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0">
+            <MaterialIcon name="delete" filled className="text-error" />
+          </div>
+          <h2 className="font-headline-md text-headline-md text-primary">Delete Lead</h2>
+        </div>
+        <p className="font-body-md text-body-md text-on-surface-variant">
+          Are you sure you want to delete <span className="font-semibold text-on-surface">{lead.customer_name}</span>?
+          This can't be undone.
+        </p>
+        {error && <p className="font-body-md text-body-md text-error">{error}</p>}
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 py-3 rounded-xl border border-surface-variant text-on-surface font-label-lg text-label-lg hover:bg-surface-variant transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={deleting}
+            className="flex-1 py-3 rounded-xl bg-error text-on-error font-label-lg text-label-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+          >
+            {deleting ? "Deleting…" : "Delete"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -126,6 +176,10 @@ export default function Leads() {
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingLead, setEditingLead] = useState(null);
+  const [deletingLead, setDeletingLead] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const refresh = () => {
     if (!salon) return;
@@ -139,6 +193,19 @@ export default function Leads() {
   useEffect(refresh, [salon]);
 
   const visibleLeads = activeFilter === "all" ? leads : leads.filter((l) => l.status === activeFilter);
+
+  const handleConfirmDelete = async () => {
+    setDeleting(true);
+    setDeleteError("");
+    const { error } = await deleteLead(deletingLead.id);
+    setDeleting(false);
+    if (error) {
+      setDeleteError(error.message);
+      return;
+    }
+    setLeads((prev) => prev.filter((l) => l.id !== deletingLead.id));
+    setDeletingLead(null);
+  };
 
   return (
     <>
@@ -230,6 +297,23 @@ export default function Leads() {
                   >
                     {lead.status === "new" || lead.status === "follow_up" ? "Follow Up" : "View"}
                   </button>
+                  <button
+                    aria-label={`Edit ${lead.customer_name}`}
+                    onClick={() => setEditingLead(lead)}
+                    className="w-11 h-11 flex-shrink-0 rounded-lg border border-surface-variant flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors active:scale-95"
+                  >
+                    <MaterialIcon name="edit" className="text-[18px]" />
+                  </button>
+                  <button
+                    aria-label={`Delete ${lead.customer_name}`}
+                    onClick={() => {
+                      setDeleteError("");
+                      setDeletingLead(lead);
+                    }}
+                    className="w-11 h-11 flex-shrink-0 rounded-lg border border-error/30 flex items-center justify-center text-error hover:bg-error-container/30 transition-colors active:scale-95"
+                  >
+                    <MaterialIcon name="delete" className="text-[18px]" />
+                  </button>
                 </div>
               </div>
             );
@@ -246,13 +330,34 @@ export default function Leads() {
       </button>
 
       {showAddModal && salon && (
-        <AddLeadModal
+        <LeadFormModal
           salonId={salon.id}
           onClose={() => setShowAddModal(false)}
-          onCreated={(newLead) => {
+          onSaved={(newLead) => {
             setShowAddModal(false);
             setLeads((prev) => [newLead, ...prev]);
           }}
+        />
+      )}
+
+      {editingLead && (
+        <LeadFormModal
+          initialLead={editingLead}
+          onClose={() => setEditingLead(null)}
+          onSaved={(updated) => {
+            setEditingLead(null);
+            setLeads((prev) => prev.map((l) => (l.id === updated.id ? updated : l)));
+          }}
+        />
+      )}
+
+      {deletingLead && (
+        <ConfirmDeleteModal
+          lead={deletingLead}
+          deleting={deleting}
+          error={deleteError}
+          onCancel={() => setDeletingLead(null)}
+          onConfirm={handleConfirmDelete}
         />
       )}
     </>

@@ -29,12 +29,33 @@ export async function createLead(salonId, lead) {
       customer_phone: lead.customerPhone || null,
       service: lead.service || null,
       source: lead.source || "manual",
-      potential_value: lead.potentialValue || null,
+      potential_value: lead.potentialValue ?? null,
       status: lead.status || "new",
       last_contact_at: lead.lastContactAt || null,
     })
     .select()
     .single();
+}
+
+export async function updateLead(leadId, lead) {
+  return supabase
+    .from("leads")
+    .update({
+      customer_name: lead.customerName,
+      customer_phone: lead.customerPhone || null,
+      service: lead.service || null,
+      source: lead.source || "manual",
+      potential_value: lead.potentialValue ?? null,
+      status: lead.status || "new",
+      last_contact_at: lead.lastContactAt || null,
+    })
+    .eq("id", leadId)
+    .select()
+    .single();
+}
+
+export async function deleteLead(leadId) {
+  return supabase.from("leads").delete().eq("id", leadId);
 }
 
 export async function updateLeadStatus(leadId, status) {
