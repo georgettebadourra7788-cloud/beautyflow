@@ -30,7 +30,8 @@ export async function createLead(salonId, lead) {
       service: lead.service || null,
       source: lead.source || "manual",
       potential_value: lead.potentialValue || null,
-      status: "new",
+      status: lead.status || "new",
+      last_contact_at: lead.lastContactAt || null,
     })
     .select()
     .single();

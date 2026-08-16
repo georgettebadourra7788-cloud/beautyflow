@@ -3,8 +3,23 @@ import { useNavigate } from "react-router-dom";
 import MaterialIcon from "../components/icons/MaterialIcon.jsx";
 import Avatar from "../components/Avatar.jsx";
 import FloatingInput from "../components/FloatingInput.jsx";
+import FloatingSelect from "../components/FloatingSelect.jsx";
 import { useSalon } from "../lib/SalonContext.jsx";
 import { listLeads, createLead } from "../lib/api/leads.js";
+
+const SOURCE_OPTIONS = [
+  { value: "instagram", label: "Instagram" },
+  { value: "whatsapp", label: "WhatsApp" },
+  { value: "website", label: "Website" },
+  { value: "manual", label: "Manual" },
+];
+
+const STATUS_OPTIONS = [
+  { value: "new", label: "New" },
+  { value: "follow_up", label: "Follow-up" },
+  { value: "booked", label: "Booked" },
+  { value: "lost", label: "Lost" },
+];
 
 const FILTERS = [
   { label: "All", value: "all" },
@@ -32,7 +47,10 @@ function AddLeadModal({ onClose, onCreated, salonId }) {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [service, setService] = useState("");
+  const [source, setSource] = useState("manual");
   const [potentialValue, setPotentialValue] = useState("");
+  const [status, setStatus] = useState("new");
+  const [lastContactAt, setLastContactAt] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -45,8 +63,10 @@ function AddLeadModal({ onClose, onCreated, salonId }) {
       customerName: customerName.trim(),
       customerPhone: customerPhone.trim(),
       service: service.trim(),
+      source,
       potentialValue: potentialValue ? Number(potentialValue) : null,
-      source: "manual",
+      status,
+      lastContactAt: lastContactAt ? new Date(lastContactAt).toISOString() : null,
     });
     setSubmitting(false);
     if (createError) {
@@ -60,7 +80,7 @@ function AddLeadModal({ onClose, onCreated, salonId }) {
     <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center bg-black/40 px-4 pb-4 md:pb-0">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm bg-surface-container-lowest rounded-[24px] p-6 soft-shadow border border-outline-variant/30 space-y-stack-md"
+        className="w-full max-w-sm bg-surface-container-lowest rounded-[24px] p-6 soft-shadow border border-outline-variant/30 space-y-stack-md max-h-[85vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between">
           <h2 className="font-headline-md text-headline-md text-primary">Add Lead</h2>
@@ -71,14 +91,28 @@ function AddLeadModal({ onClose, onCreated, salonId }) {
         <FloatingInput id="customerName" label="Customer Name" required value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
         <FloatingInput id="customerPhone" label="Phone" type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} />
         <FloatingInput id="service" label="Service" value={service} onChange={(e) => setService(e.target.value)} />
+        <FloatingSelect id="source" label="Source" value={source} onChange={(e) => setSource(e.target.value)} options={SOURCE_OPTIONS} />
         <FloatingInput id="potentialValue" label="Potential Value ($)" type="number" value={potentialValue} onChange={(e) => setPotentialValue(e.target.value)} />
+        <FloatingSelect id="status" label="Status" value={status} onChange={(e) => setStatus(e.target.value)} options={STATUS_OPTIONS} />
+        <div>
+          <label htmlFor="lastContactAt" className="block text-on-surface-variant font-label-lg text-label-lg mb-1">
+            Last Contact
+          </label>
+          <input
+            id="lastContactAt"
+            type="datetime-local"
+            value={lastContactAt}
+            onChange={(e) => setLastContactAt(e.target.value)}
+            className="block w-full px-0 py-3 border-0 border-b border-outline-variant bg-transparent focus:ring-0 focus:border-primary text-on-surface font-body-lg"
+          />
+        </div>
         {error && <p className="font-body-md text-body-md text-error">{error}</p>}
         <button
           type="submit"
           disabled={submitting}
           className="w-full bg-primary-container text-on-primary-container font-label-lg text-label-lg py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
         >
-          {submitting ? "Adding…" : "Add Lead"}
+          {submitting ? "Saving…" : "Save Lead"}
         </button>
       </form>
     </div>
@@ -215,9 +249,9 @@ export default function Leads() {
         <AddLeadModal
           salonId={salon.id}
           onClose={() => setShowAddModal(false)}
-          onCreated={() => {
+          onCreated={(newLead) => {
             setShowAddModal(false);
-            refresh();
+            setLeads((prev) => [newLead, ...prev]);
           }}
         />
       )}
