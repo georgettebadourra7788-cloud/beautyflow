@@ -5,7 +5,7 @@ import { useAuth } from "./AuthContext.jsx";
 const SalonContext = createContext(null);
 
 export function SalonProvider({ children }) {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [salon, setSalon] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -28,8 +28,15 @@ export function SalonProvider({ children }) {
   }, [user]);
 
   useEffect(() => {
+    // Wait for AuthContext to confirm the real auth state before acting on
+    // `user`. On first load, `user` is transiently null while auth is still
+    // checking the session - resolving "no salon" at that point (instead of
+    // waiting) leaves stale loading:false/salon:null state that route
+    // guards can read the instant auth finishes, sending logged-in owners
+    // to onboarding before the real salon fetch even starts.
+    if (authLoading) return;
     refresh();
-  }, [refresh]);
+  }, [authLoading, refresh]);
 
   return (
     <SalonContext.Provider value={{ salon, loading, refresh, setSalon }}>{children}</SalonContext.Provider>
