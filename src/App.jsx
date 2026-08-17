@@ -16,6 +16,7 @@ import ConversationsList from "./screens/ConversationsList.jsx";
 import Conversations from "./screens/Conversations.jsx";
 import Opportunities from "./screens/Opportunities.jsx";
 import More from "./screens/More.jsx";
+import EditSalon from "./screens/EditSalon.jsx";
 
 import StepSalonInfo from "./screens/onboarding/StepSalonInfo.jsx";
 import StepServices from "./screens/onboarding/StepServices.jsx";
@@ -170,6 +171,14 @@ export default function App() {
               element={
                 <WithShell>
                   <More />
+                </WithShell>
+              }
+            />
+            <Route
+              path="/salon-settings"
+              element={
+                <WithShell>
+                  <EditSalon />
                 </WithShell>
               }
             />

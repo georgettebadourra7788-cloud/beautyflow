@@ -3,7 +3,7 @@ import MaterialIcon from "../components/icons/MaterialIcon.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 
 const ITEMS = [
-  { icon: "store", label: "Salon Setup", to: "/onboarding/salon-info", enabled: true },
+  { icon: "store", label: "Salon Settings", to: "/salon-settings", enabled: true },
   { icon: "settings", label: "Settings", enabled: false },
   { icon: "credit_card", label: "Billing", enabled: false },
 ];
