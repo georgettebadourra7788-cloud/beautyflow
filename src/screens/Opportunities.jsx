@@ -25,14 +25,26 @@ export default function Opportunities() {
   const navigate = useNavigate();
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!salon) return;
+    let cancelled = false;
     setLoading(true);
-    listLeads(salon.id).then(({ data }) => {
-      setLeads(data ?? []);
+    listLeads(salon.id).then(({ data, error: fetchError }) => {
+      if (cancelled) return;
+      if (fetchError) {
+        setError(fetchError.message);
+        setLeads([]);
+      } else {
+        setError("");
+        setLeads(data ?? []);
+      }
       setLoading(false);
     });
+    return () => {
+      cancelled = true;
+    };
   }, [salon]);
 
   const openLeads = leads.filter((l) => l.status === "new" || l.status === "follow_up");
@@ -108,6 +120,8 @@ export default function Opportunities() {
 
           {loading ? (
             <p className="font-body-md text-body-md text-on-surface-variant">Loading…</p>
+          ) : error ? (
+            <p className="font-body-md text-body-md text-error">{error}</p>
           ) : topOpportunities.length === 0 ? (
             <div className="bg-surface-container-lowest rounded-[24px] p-8 soft-shadow border border-surface-variant text-center">
               <MaterialIcon name="trending_up" className="text-on-surface-variant text-4xl mb-3" />
