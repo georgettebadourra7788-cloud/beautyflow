@@ -19,6 +19,9 @@ create table if not exists public.salons (
   name text not null,
   phone text,
   address text,
+  -- Meta's WhatsApp Business phone number id, used to route an inbound
+  -- webhook payload to the salon it belongs to.
+  whatsapp_phone_number_id text,
   created_at timestamptz not null default now()
 );
 
@@ -51,6 +54,9 @@ create table if not exists public.conversations (
   channel text default 'manual' check (channel in ('instagram', 'whatsapp', 'website', 'manual')),
   message text not null,
   sender_type text not null check (sender_type in ('customer', 'salon')),
+  -- WhatsApp's own message id, so a retried webhook delivery can be
+  -- recognized instead of inserted as a duplicate message.
+  external_message_id text,
   created_at timestamptz not null default now()
 );
 
@@ -72,6 +78,21 @@ create index if not exists conversations_salon_id_idx on public.conversations (s
 create index if not exists conversations_lead_id_idx on public.conversations (lead_id);
 create index if not exists follow_ups_salon_id_idx on public.follow_ups (salon_id);
 create index if not exists follow_ups_lead_id_idx on public.follow_ups (lead_id);
+
+-- WhatsApp integration (see supabase/migrations/0001_whatsapp_fields.sql for
+-- the guarded version of the leads unique index, which checks existing data
+-- on a project that already has rows before enforcing uniqueness).
+create unique index if not exists salons_whatsapp_phone_number_id_key
+  on public.salons (whatsapp_phone_number_id)
+  where whatsapp_phone_number_id is not null;
+
+create unique index if not exists conversations_external_message_id_key
+  on public.conversations (external_message_id)
+  where external_message_id is not null;
+
+create unique index if not exists leads_salon_phone_key
+  on public.leads (salon_id, customer_phone)
+  where customer_phone is not null and customer_phone <> '';
 
 -- ---------------------------------------------------------------------------
 -- Auto-create a profile row whenever someone signs up
