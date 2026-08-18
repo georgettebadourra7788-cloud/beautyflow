@@ -66,3 +66,12 @@ export async function updateLeadStatus(leadId, status) {
     .select()
     .single();
 }
+
+export async function touchLastContact(leadId) {
+  return supabase
+    .from("leads")
+    .update({ last_contact_at: new Date().toISOString() })
+    .eq("id", leadId)
+    .select()
+    .single();
+}

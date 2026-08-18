@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import MaterialIcon from "../components/icons/MaterialIcon.jsx";
 import { useSalon } from "../lib/SalonContext.jsx";
-import { getLead } from "../lib/api/leads.js";
+import { getLead, touchLastContact } from "../lib/api/leads.js";
 import { listMessages, sendMessage, createFollowUp } from "../lib/api/conversations.js";
 
 const SOURCE_ICON = { instagram: "photo_camera", whatsapp: "chat", website: "language", manual: "edit" };
@@ -48,7 +48,11 @@ export default function Conversations() {
     if (!draft.trim() || !salon) return;
     setSending(true);
     const { data } = await sendMessage({ salonId: salon.id, leadId, message: draft.trim(), senderType: "salon" });
-    if (data) setMessages((prev) => [...prev, data]);
+    if (data) {
+      setMessages((prev) => [...prev, data]);
+      const { data: updatedLead } = await touchLastContact(leadId);
+      if (updatedLead) setLead(updatedLead);
+    }
     setDraft("");
     setSending(false);
   };
@@ -59,6 +63,8 @@ export default function Conversations() {
     const { data } = await sendMessage({ salonId: salon.id, leadId, message: suggestion.trim(), senderType: "salon" });
     if (data) setMessages((prev) => [...prev, data]);
     await createFollowUp({ salonId: salon.id, leadId, message: suggestion.trim() });
+    const { data: updatedLead } = await touchLastContact(leadId);
+    if (updatedLead) setLead(updatedLead);
     setSending(false);
     setSuggestionSent(true);
   };
