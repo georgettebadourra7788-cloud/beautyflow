@@ -6,6 +6,7 @@ import { getLead, touchLastContact } from "../lib/api/leads.js";
 import { listMessages, sendMessage, createFollowUp } from "../lib/api/conversations.js";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
 import LanguageToggle from "../components/LanguageToggle.jsx";
+import { serviceLabel } from "../lib/serviceOptions.js";
 
 const SOURCE_ICON = { instagram: "photo_camera", whatsapp: "chat", website: "language", manual: "edit" };
 
@@ -106,7 +107,7 @@ export default function Conversations() {
           <div className="flex flex-col">
             <h1 className="font-headline-md text-headline-md text-primary">{lead.customer_name}</h1>
             <div className="flex items-center gap-2">
-              <span className="font-label-lg text-label-lg text-secondary">{lead.service || t("conversations.newInquiry")}</span>
+              <span className="font-label-lg text-label-lg text-secondary">{serviceLabel(t, lead.service) || t("conversations.newInquiry")}</span>
               <span className="w-1 h-1 rounded-full bg-outline-variant" />
               <span className="font-label-sm text-label-sm text-secondary px-2 py-0.5 bg-surface-container-high rounded-full flex items-center gap-1">
                 <MaterialIcon name={SOURCE_ICON[lead.source] ?? "edit"} className="text-[10px]" />
@@ -213,7 +214,7 @@ export default function Conversations() {
           <div className="flex flex-col gap-0">
             <div className="flex justify-between py-3 border-b border-on-surface/5 px-1">
               <span className="font-body-md text-body-md text-secondary">{t("conversations.service")}</span>
-              <span className="font-label-lg text-label-lg text-on-surface">{lead.service || t("common.dash")}</span>
+              <span className="font-label-lg text-label-lg text-on-surface">{serviceLabel(t, lead.service) || t("common.dash")}</span>
             </div>
             <div className="flex justify-between py-3 border-b border-on-surface/5 px-1">
               <span className="font-body-md text-body-md text-secondary">{t("conversations.potentialValue")}</span>

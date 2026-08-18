@@ -7,6 +7,7 @@ import { useSalon } from "../lib/SalonContext.jsx";
 import { listLeads } from "../lib/api/leads.js";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
 import LanguageToggle from "../components/LanguageToggle.jsx";
+import { serviceLabel } from "../lib/serviceOptions.js";
 
 const STATUS_CLASS = {
   new: "bg-surface-container-high text-on-surface-variant",
@@ -152,7 +153,7 @@ export default function Dashboard() {
                       </div>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="font-label-lg text-label-lg text-on-surface-variant">
-                          {lead.service || t("common.dash")}
+                          {serviceLabel(t, lead.service) || t("common.dash")}
                         </span>
                         <span className="w-1 h-1 rounded-full bg-surface-variant" />
                         <span

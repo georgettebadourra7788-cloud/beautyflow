@@ -6,6 +6,7 @@ import { useSalon } from "../lib/SalonContext.jsx";
 import { listLeads } from "../lib/api/leads.js";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
 import LanguageToggle from "../components/LanguageToggle.jsx";
+import { serviceLabel } from "../lib/serviceOptions.js";
 
 export default function ConversationsList() {
   const { salon } = useSalon();
@@ -50,7 +51,7 @@ export default function ConversationsList() {
               <div className="flex-1 min-w-0">
                 <div className="font-body-lg font-semibold text-on-surface leading-tight">{lead.customer_name}</div>
                 <p className="font-body-md text-body-md text-on-surface-variant truncate">
-                  {lead.service || t("conversationsList.newInquiry")}
+                  {serviceLabel(t, lead.service) || t("conversationsList.newInquiry")}
                 </p>
               </div>
               <MaterialIcon name="chevron_right" className="text-on-surface-variant flex-shrink-0" />

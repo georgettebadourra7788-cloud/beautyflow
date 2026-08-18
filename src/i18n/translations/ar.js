@@ -37,6 +37,17 @@ export default {
     booked: "تم الحجز",
     lost: "فائت",
   },
+  services: {
+    haircut: "قص شعر",
+    hair_color: "صبغة شعر",
+    manicure: "مانيكير",
+    pedicure: "بديكير",
+    facial: "تنظيف بشرة",
+    massage: "مساج",
+    waxing: "إزالة الشعر بالشمع",
+    makeup: "مكياج",
+    other: "أخرى",
+  },
   auth: {
     supabaseNotConfigured:
       "لم يتم إعداد Supabase بعد. يرجى تعيين {{urlVar}} و {{keyVar}} في ملف .env.local، ثم إعادة تشغيل خادم التطوير.",

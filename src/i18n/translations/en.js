@@ -37,6 +37,17 @@ export default {
     booked: "Booked",
     lost: "Lost",
   },
+  services: {
+    haircut: "Haircut",
+    hair_color: "Hair Color",
+    manicure: "Manicure",
+    pedicure: "Pedicure",
+    facial: "Facial",
+    massage: "Massage",
+    waxing: "Waxing",
+    makeup: "Makeup",
+    other: "Other",
+  },
   auth: {
     supabaseNotConfigured:
       "Supabase isn't configured yet. Set {{urlVar}} and {{keyVar}} in your .env.local file, then restart the dev server.",

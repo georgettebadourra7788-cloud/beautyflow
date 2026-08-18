@@ -6,6 +6,7 @@ import { useSalon } from "../lib/SalonContext.jsx";
 import { listLeads } from "../lib/api/leads.js";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
 import LanguageToggle from "../components/LanguageToggle.jsx";
+import { serviceLabel } from "../lib/serviceOptions.js";
 
 // Simple placeholder heuristic until real lead scoring exists: leads worth
 // $100+ are flagged "High Intent". No AI/automation involved.
@@ -153,7 +154,7 @@ export default function Opportunities() {
                         <div>
                           <h4 className="font-label-lg text-body-lg text-on-surface font-semibold">{lead.customer_name}</h4>
                           <p className="font-body-md text-label-lg text-on-surface-variant">
-                            {[lead.service, sourceLabel].filter(Boolean).join(" • ") || t("common.dash")}
+                            {[serviceLabel(t, lead.service), sourceLabel].filter(Boolean).join(" • ") || t("common.dash")}
                           </p>
                         </div>
                       </div>

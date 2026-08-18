@@ -8,6 +8,7 @@ import { useSalon } from "../lib/SalonContext.jsx";
 import { listLeads, createLead, updateLead, deleteLead } from "../lib/api/leads.js";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
 import LanguageToggle from "../components/LanguageToggle.jsx";
+import { getServiceOptions, serviceLabel } from "../lib/serviceOptions.js";
 
 const SOURCE_CLASS = {
   instagram: { className: "bg-[#F3E5F5] text-[#7B1FA2]", icon: null },
@@ -47,9 +48,10 @@ function LeadFormModal({ onClose, onSaved, salonId, initialLead }) {
     { value: "booked", label: t("statuses.booked") },
     { value: "lost", label: t("statuses.lost") },
   ];
+  const SERVICE_OPTIONS = getServiceOptions(t);
   const [customerName, setCustomerName] = useState(initialLead?.customer_name ?? "");
   const [customerPhone, setCustomerPhone] = useState(initialLead?.customer_phone ?? "");
-  const [service, setService] = useState(initialLead?.service ?? "");
+  const [service, setService] = useState(initialLead?.service ?? "haircut");
   const [source, setSource] = useState(initialLead?.source ?? "manual");
   const [potentialValue, setPotentialValue] = useState(initialLead?.potential_value ?? "");
   const [status, setStatus] = useState(initialLead?.status ?? "new");
@@ -65,7 +67,7 @@ function LeadFormModal({ onClose, onSaved, salonId, initialLead }) {
     const payload = {
       customerName: customerName.trim(),
       customerPhone: customerPhone.trim(),
-      service: service.trim(),
+      service,
       source,
       potentialValue: potentialValue !== "" ? Number(potentialValue) : null,
       status,
@@ -104,7 +106,7 @@ function LeadFormModal({ onClose, onSaved, salonId, initialLead }) {
           onChange={(e) => setCustomerName(e.target.value)}
         />
         <FloatingInput id="customerPhone" label={t("leads.form.phoneLabel")} type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} />
-        <FloatingInput id="service" label={t("leads.form.serviceLabel")} value={service} onChange={(e) => setService(e.target.value)} />
+        <FloatingSelect id="service" label={t("leads.form.serviceLabel")} value={service} onChange={(e) => setService(e.target.value)} options={SERVICE_OPTIONS} />
         <FloatingSelect id="source" label={t("leads.form.sourceLabel")} value={source} onChange={(e) => setSource(e.target.value)} options={SOURCE_OPTIONS} />
         <FloatingInput id="potentialValue" label={t("leads.form.potentialValueLabel")} type="number" value={potentialValue} onChange={(e) => setPotentialValue(e.target.value)} />
         <FloatingSelect id="status" label={t("leads.form.statusLabel")} value={status} onChange={(e) => setStatus(e.target.value)} options={STATUS_OPTIONS} />
@@ -288,8 +290,9 @@ export default function Leads() {
                         {lead.customer_name}
                       </h3>
                       <p className="font-body-md text-body-md text-on-surface-variant">
-                        {[lead.service, lead.potential_value ? `$${lead.potential_value}` : null].filter(Boolean).join(" • ") ||
-                          t("common.dash")}
+                        {[serviceLabel(t, lead.service), lead.potential_value ? `$${lead.potential_value}` : null]
+                          .filter(Boolean)
+                          .join(" • ") || t("common.dash")}
                       </p>
                     </div>
                   </div>
