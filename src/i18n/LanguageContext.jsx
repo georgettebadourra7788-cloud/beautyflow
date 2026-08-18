@@ -4,12 +4,18 @@ import ar from "./translations/ar.js";
 
 const TRANSLATIONS = { en, ar };
 const STORAGE_KEY = "beautyflow_language";
+const CHOSEN_STORAGE_KEY = "beautyflow_language_chosen";
 const LanguageContext = createContext(null);
 
 function getInitialLanguage() {
   if (typeof window === "undefined") return "en";
   const stored = window.localStorage.getItem(STORAGE_KEY);
   return stored === "ar" ? "ar" : "en";
+}
+
+function getInitialHasChosen() {
+  if (typeof window === "undefined") return false;
+  return window.localStorage.getItem(CHOSEN_STORAGE_KEY) === "1";
 }
 
 function resolve(dict, key) {
@@ -23,6 +29,7 @@ function interpolate(str, vars) {
 
 export function LanguageProvider({ children }) {
   const [language, setLanguageState] = useState(getInitialLanguage);
+  const [hasChosenLanguage, setHasChosenLanguage] = useState(getInitialHasChosen);
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -30,8 +37,13 @@ export function LanguageProvider({ children }) {
     window.localStorage.setItem(STORAGE_KEY, language);
   }, [language]);
 
+  // Any explicit selection - from the first-run language screen or later
+  // from More/Settings - both sets the active language and remembers that
+  // a choice was made, so the first-run screen never shows again.
   const setLanguage = useCallback((lang) => {
     setLanguageState(lang === "ar" ? "ar" : "en");
+    setHasChosenLanguage(true);
+    window.localStorage.setItem(CHOSEN_STORAGE_KEY, "1");
   }, []);
 
   const t = useCallback(
@@ -44,8 +56,8 @@ export function LanguageProvider({ children }) {
   );
 
   const value = useMemo(
-    () => ({ language, setLanguage, t, isRtl: language === "ar" }),
-    [language, setLanguage, t]
+    () => ({ language, setLanguage, t, isRtl: language === "ar", hasChosenLanguage }),
+    [language, setLanguage, t, hasChosenLanguage]
   );
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;

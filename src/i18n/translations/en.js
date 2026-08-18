@@ -1,4 +1,7 @@
 export default {
+  languageSelect: {
+    heading: "Choose your language",
+  },
   common: {
     loading: "Loading…",
     save: "Save",

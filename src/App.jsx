@@ -5,9 +5,11 @@ import { SalonProvider } from "./lib/SalonContext.jsx";
 import RequireAuth from "./components/RequireAuth.jsx";
 import RequireSalon from "./components/RequireSalon.jsx";
 import RedirectIfAuthed from "./components/RedirectIfAuthed.jsx";
+import RequireLanguageChosen from "./components/RequireLanguageChosen.jsx";
 import RootRedirect from "./components/RootRedirect.jsx";
 import AppShell from "./components/layout/AppShell.jsx";
 
+import LanguageSelect from "./screens/LanguageSelect.jsx";
 import Login from "./screens/auth/Login.jsx";
 import SignUp from "./screens/auth/SignUp.jsx";
 
@@ -50,20 +52,26 @@ export default function App() {
           <Routes>
             <Route path="/" element={<RootRedirect />} />
 
+            <Route path="/language" element={<LanguageSelect />} />
+
             <Route
               path="/login"
               element={
-                <RedirectIfAuthed>
-                  <Login />
-                </RedirectIfAuthed>
+                <RequireLanguageChosen>
+                  <RedirectIfAuthed>
+                    <Login />
+                  </RedirectIfAuthed>
+                </RequireLanguageChosen>
               }
             />
             <Route
               path="/signup"
               element={
-                <RedirectIfAuthed>
-                  <SignUp />
-                </RedirectIfAuthed>
+                <RequireLanguageChosen>
+                  <RedirectIfAuthed>
+                    <SignUp />
+                  </RedirectIfAuthed>
+                </RequireLanguageChosen>
               }
             />
 

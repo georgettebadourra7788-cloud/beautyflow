@@ -1,4 +1,7 @@
 export default {
+  languageSelect: {
+    heading: "اختر لغتك",
+  },
   common: {
     loading: "جارٍ التحميل…",
     save: "حفظ",
