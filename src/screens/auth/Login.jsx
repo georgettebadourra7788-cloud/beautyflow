@@ -4,6 +4,7 @@ import FloatingInput from "../../components/FloatingInput.jsx";
 import MaterialIcon from "../../components/icons/MaterialIcon.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { useLanguage } from "../../i18n/LanguageContext.jsx";
+import LanguageToggle from "../../components/LanguageToggle.jsx";
 
 export default function Login() {
   const { signIn, isSupabaseConfigured } = useAuth();
@@ -30,6 +31,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-surface flex flex-col justify-center px-container-padding">
+      <LanguageToggle className="fixed top-6 end-6 z-50" />
       <div className="w-full max-w-sm mx-auto">
         <div className="mb-stack-lg text-center">
           <div className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-primary-container text-on-primary-container mb-stack-md font-headline-md text-headline-md tracking-tight">

@@ -4,6 +4,7 @@ import FloatingInput from "../../components/FloatingInput.jsx";
 import MaterialIcon from "../../components/icons/MaterialIcon.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { useLanguage } from "../../i18n/LanguageContext.jsx";
+import LanguageToggle from "../../components/LanguageToggle.jsx";
 
 export default function SignUp() {
   const { signUp, isSupabaseConfigured } = useAuth();
@@ -40,6 +41,7 @@ export default function SignUp() {
   if (needsConfirmation) {
     return (
       <div className="min-h-screen bg-surface flex flex-col justify-center px-container-padding">
+        <LanguageToggle className="fixed top-6 end-6 z-50" />
         <div className="w-full max-w-sm mx-auto text-center bg-surface-container-lowest rounded-[24px] p-8 soft-shadow border border-outline-variant/30">
           <MaterialIcon name="mark_email_read" filled className="text-5xl text-primary mb-stack-md" />
           <h1 className="font-headline-lg text-headline-lg text-primary mb-stack-sm">{t("auth.signup.checkEmailTitle")}</h1>
@@ -68,6 +70,7 @@ export default function SignUp() {
 
   return (
     <div className="min-h-screen bg-surface flex flex-col justify-center px-container-padding">
+      <LanguageToggle className="fixed top-6 end-6 z-50" />
       <div className="w-full max-w-sm mx-auto">
         <div className="mb-stack-lg text-center">
           <div className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-primary-container text-on-primary-container mb-stack-md font-headline-md text-headline-md tracking-tight">
