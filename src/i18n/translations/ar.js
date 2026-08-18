@@ -2,6 +2,10 @@ export default {
   languageSelect: {
     heading: "اختر لغتك",
   },
+  languageToggle: {
+    switchToEnglish: "التبديل إلى الإنجليزية",
+    switchToArabic: "التبديل إلى العربية",
+  },
   common: {
     loading: "جارٍ التحميل…",
     save: "حفظ",

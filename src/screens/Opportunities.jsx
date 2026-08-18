@@ -5,6 +5,7 @@ import Avatar from "../components/Avatar.jsx";
 import { useSalon } from "../lib/SalonContext.jsx";
 import { listLeads } from "../lib/api/leads.js";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
+import LanguageToggle from "../components/LanguageToggle.jsx";
 
 // Simple placeholder heuristic until real lead scoring exists: leads worth
 // $100+ are flagged "High Intent". No AI/automation involved.
@@ -72,12 +73,15 @@ export default function Opportunities() {
     <>
       <header className="bg-surface flex justify-between items-center px-container-padding pt-stack-lg pb-stack-md w-full sticky top-0 z-30">
         <h1 className="font-headline-md text-headline-md text-primary">{t("opportunities.title")}</h1>
-        <button
-          aria-label={t("common.notifications")}
-          className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center hover:opacity-80 transition-opacity"
-        >
-          <MaterialIcon name="notifications" className="text-primary" />
-        </button>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <LanguageToggle />
+          <button
+            aria-label={t("common.notifications")}
+            className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center hover:opacity-80 transition-opacity"
+          >
+            <MaterialIcon name="notifications" className="text-primary" />
+          </button>
+        </div>
       </header>
 
       <main className="flex-1 px-container-padding pb-40 space-y-stack-lg">

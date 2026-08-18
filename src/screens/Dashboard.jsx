@@ -6,6 +6,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { useSalon } from "../lib/SalonContext.jsx";
 import { listLeads } from "../lib/api/leads.js";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
+import LanguageToggle from "../components/LanguageToggle.jsx";
 
 const STATUS_CLASS = {
   new: "bg-surface-container-high text-on-surface-variant",
@@ -83,12 +84,15 @@ export default function Dashboard() {
             </p>
           </div>
         </div>
-        <button
-          aria-label={t("common.notifications")}
-          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors text-primary flex-shrink-0"
-        >
-          <MaterialIcon name="notifications" />
-        </button>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <LanguageToggle />
+          <button
+            aria-label={t("common.notifications")}
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors text-primary flex-shrink-0"
+          >
+            <MaterialIcon name="notifications" />
+          </button>
+        </div>
       </header>
 
       <main className="px-container-padding pt-stack-md pb-32 flex flex-col gap-stack-lg">

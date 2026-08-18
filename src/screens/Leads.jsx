@@ -7,6 +7,7 @@ import FloatingSelect from "../components/FloatingSelect.jsx";
 import { useSalon } from "../lib/SalonContext.jsx";
 import { listLeads, createLead, updateLead, deleteLead } from "../lib/api/leads.js";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
+import LanguageToggle from "../components/LanguageToggle.jsx";
 
 const SOURCE_CLASS = {
   instagram: { className: "bg-[#F3E5F5] text-[#7B1FA2]", icon: null },
@@ -229,12 +230,15 @@ export default function Leads() {
     <>
       <header className="px-container-padding pt-stack-lg pb-stack-md flex justify-between items-center bg-surface sticky top-0 z-30">
         <h1 className="font-headline-lg text-headline-lg text-on-surface">{t("leads.title")}</h1>
-        <button
-          aria-label={t("leads.searchAria")}
-          className="w-10 h-10 rounded-full border border-surface-variant flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors"
-        >
-          <MaterialIcon name="search" />
-        </button>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <LanguageToggle />
+          <button
+            aria-label={t("leads.searchAria")}
+            className="w-10 h-10 rounded-full border border-surface-variant flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors"
+          >
+            <MaterialIcon name="search" />
+          </button>
+        </div>
       </header>
 
       <div className="px-container-padding pb-stack-md overflow-x-auto hide-scrollbar">

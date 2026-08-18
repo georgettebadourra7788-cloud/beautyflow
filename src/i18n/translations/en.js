@@ -2,6 +2,10 @@ export default {
   languageSelect: {
     heading: "Choose your language",
   },
+  languageToggle: {
+    switchToEnglish: "Switch to English",
+    switchToArabic: "Switch to Arabic",
+  },
   common: {
     loading: "Loading…",
     save: "Save",

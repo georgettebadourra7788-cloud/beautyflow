@@ -5,6 +5,7 @@ import { useSalon } from "../lib/SalonContext.jsx";
 import { getLead, touchLastContact } from "../lib/api/leads.js";
 import { listMessages, sendMessage, createFollowUp } from "../lib/api/conversations.js";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
+import LanguageToggle from "../components/LanguageToggle.jsx";
 
 const SOURCE_ICON = { instagram: "photo_camera", whatsapp: "chat", website: "language", manual: "edit" };
 
@@ -114,6 +115,7 @@ export default function Conversations() {
             </div>
           </div>
         </div>
+        <LanguageToggle className="ms-2" />
       </header>
 
       <main className="flex-grow px-container-padding pt-stack-lg pb-40 flex flex-col gap-stack-lg w-full">
