@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { LanguageProvider } from "./i18n/LanguageContext.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
 import { SalonProvider } from "./lib/SalonContext.jsx";
 import RequireAuth from "./components/RequireAuth.jsx";
@@ -42,6 +43,7 @@ function WithOnboarding({ children }) {
 
 export default function App() {
   return (
+    <LanguageProvider>
     <BrowserRouter>
       <AuthProvider>
         <SalonProvider>
@@ -188,5 +190,6 @@ export default function App() {
         </SalonProvider>
       </AuthProvider>
     </BrowserRouter>
+    </LanguageProvider>
   );
 }

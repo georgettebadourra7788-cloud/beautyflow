@@ -4,9 +4,11 @@ import FloatingInput from "../components/FloatingInput.jsx";
 import MaterialIcon from "../components/icons/MaterialIcon.jsx";
 import { useSalon } from "../lib/SalonContext.jsx";
 import { updateSalon } from "../lib/api/salons.js";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 export default function EditSalon() {
   const { salon, setSalon } = useSalon();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [name, setName] = useState(salon?.name ?? "");
   const [phone, setPhone] = useState(salon?.phone ?? "");
@@ -18,7 +20,7 @@ export default function EditSalon() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) {
-      setError("Salon name is required.");
+      setError(t("salonSettings.nameRequired"));
       return;
     }
     setSubmitting(true);
@@ -42,12 +44,12 @@ export default function EditSalon() {
       <header className="px-container-padding pt-stack-lg pb-stack-md flex items-center gap-3 bg-surface sticky top-0 z-30">
         <button
           onClick={() => navigate("/more")}
-          aria-label="Back"
+          aria-label={t("salonSettings.backAria")}
           className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors"
         >
           <MaterialIcon name="arrow_back" />
         </button>
-        <h1 className="font-headline-lg text-headline-lg text-on-surface">Salon Settings</h1>
+        <h1 className="font-headline-lg text-headline-lg text-on-surface">{t("salonSettings.title")}</h1>
       </header>
 
       <main className="px-container-padding pb-40 flex flex-col gap-stack-lg">
@@ -56,12 +58,12 @@ export default function EditSalon() {
           className="bg-surface-container-lowest rounded-[24px] p-6 soft-shadow border border-outline-variant/30 space-y-stack-md"
         >
           <div className="flex items-center justify-between mb-stack-md">
-            <h2 className="font-headline-md text-headline-md text-primary">Salon Information</h2>
+            <h2 className="font-headline-md text-headline-md text-primary">{t("salonSettings.heading")}</h2>
             <MaterialIcon name="storefront" filled className="text-primary-container" />
           </div>
           <FloatingInput
             id="salonName"
-            label="Salon Name"
+            label={t("salonSettings.nameLabel")}
             required
             value={name}
             onChange={(e) => {
@@ -71,7 +73,7 @@ export default function EditSalon() {
           />
           <FloatingInput
             id="phone"
-            label="Phone Number"
+            label={t("salonSettings.phoneLabel")}
             type="tel"
             value={phone}
             onChange={(e) => {
@@ -81,7 +83,7 @@ export default function EditSalon() {
           />
           <FloatingInput
             id="address"
-            label="Salon Address"
+            label={t("salonSettings.addressLabel")}
             value={address}
             onChange={(e) => {
               setAddress(e.target.value);
@@ -89,13 +91,13 @@ export default function EditSalon() {
             }}
           />
           {error && <p className="font-body-md text-body-md text-error">{error}</p>}
-          {saved && !error && <p className="font-body-md text-body-md text-primary">Saved.</p>}
+          {saved && !error && <p className="font-body-md text-body-md text-primary">{t("salonSettings.saved")}</p>}
           <button
             type="submit"
             disabled={submitting}
             className="w-full bg-primary-container text-on-primary-container font-label-lg text-label-lg py-4 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            {submitting ? "Saving…" : "Save Changes"}
+            {submitting ? t("salonSettings.saving") : t("salonSettings.saveChanges")}
           </button>
         </form>
       </main>

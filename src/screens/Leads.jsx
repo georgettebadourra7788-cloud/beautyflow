@@ -6,41 +6,20 @@ import FloatingInput from "../components/FloatingInput.jsx";
 import FloatingSelect from "../components/FloatingSelect.jsx";
 import { useSalon } from "../lib/SalonContext.jsx";
 import { listLeads, createLead, updateLead, deleteLead } from "../lib/api/leads.js";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
-const SOURCE_OPTIONS = [
-  { value: "instagram", label: "Instagram" },
-  { value: "whatsapp", label: "WhatsApp" },
-  { value: "website", label: "Website" },
-  { value: "manual", label: "Manual" },
-];
-
-const STATUS_OPTIONS = [
-  { value: "new", label: "New" },
-  { value: "follow_up", label: "Follow-up" },
-  { value: "booked", label: "Booked" },
-  { value: "lost", label: "Lost" },
-];
-
-const FILTERS = [
-  { label: "All", value: "all" },
-  { label: "New", value: "new" },
-  { label: "Follow-up", value: "follow_up" },
-  { label: "Booked", value: "booked" },
-  { label: "Lost", value: "lost" },
-];
-
-const SOURCE_META = {
-  instagram: { label: "Instagram", className: "bg-[#F3E5F5] text-[#7B1FA2]", icon: null },
-  whatsapp: { label: "WhatsApp", className: "bg-[#E8F5E9] text-[#388E3C]", icon: "chat" },
-  website: { label: "Website", className: "bg-surface-container text-on-surface-variant", icon: "language" },
-  manual: { label: "Manual", className: "bg-surface-container text-on-surface-variant", icon: "edit" },
+const SOURCE_CLASS = {
+  instagram: { className: "bg-[#F3E5F5] text-[#7B1FA2]", icon: null },
+  whatsapp: { className: "bg-[#E8F5E9] text-[#388E3C]", icon: "chat" },
+  website: { className: "bg-surface-container text-on-surface-variant", icon: "language" },
+  manual: { className: "bg-surface-container text-on-surface-variant", icon: "edit" },
 };
 
-const STATUS_META = {
-  new: { dot: "bg-error", label: "New inquiry" },
-  follow_up: { dot: "bg-tertiary-fixed-dim", label: "Follow-up due" },
-  booked: { dot: "bg-primary", label: "Booked" },
-  lost: { dot: "bg-outline", label: "Lost" },
+const STATUS_DOT = {
+  new: "bg-error",
+  follow_up: "bg-tertiary-fixed-dim",
+  booked: "bg-primary",
+  lost: "bg-outline",
 };
 
 // Converts a stored ISO timestamp to the local "YYYY-MM-DDTHH:mm" value a
@@ -53,7 +32,20 @@ function toDateTimeLocalValue(iso) {
 }
 
 function LeadFormModal({ onClose, onSaved, salonId, initialLead }) {
+  const { t } = useLanguage();
   const isEdit = Boolean(initialLead);
+  const SOURCE_OPTIONS = [
+    { value: "instagram", label: t("sources.instagram") },
+    { value: "whatsapp", label: t("sources.whatsapp") },
+    { value: "website", label: t("sources.website") },
+    { value: "manual", label: t("sources.manual") },
+  ];
+  const STATUS_OPTIONS = [
+    { value: "new", label: t("statuses.new") },
+    { value: "follow_up", label: t("statuses.follow_up") },
+    { value: "booked", label: t("statuses.booked") },
+    { value: "lost", label: t("statuses.lost") },
+  ];
   const [customerName, setCustomerName] = useState(initialLead?.customer_name ?? "");
   const [customerPhone, setCustomerPhone] = useState(initialLead?.customer_phone ?? "");
   const [service, setService] = useState(initialLead?.service ?? "");
@@ -96,20 +88,28 @@ function LeadFormModal({ onClose, onSaved, salonId, initialLead }) {
         className="w-full max-w-sm bg-surface-container-lowest rounded-[24px] p-6 soft-shadow border border-outline-variant/30 space-y-stack-md max-h-[85vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between">
-          <h2 className="font-headline-md text-headline-md text-primary">{isEdit ? "Edit Lead" : "Add Lead"}</h2>
-          <button type="button" aria-label="Close" onClick={onClose} className="text-on-surface-variant">
+          <h2 className="font-headline-md text-headline-md text-primary">
+            {isEdit ? t("leads.form.editTitle") : t("leads.form.addTitle")}
+          </h2>
+          <button type="button" aria-label={t("leads.form.closeAria")} onClick={onClose} className="text-on-surface-variant">
             <MaterialIcon name="close" />
           </button>
         </div>
-        <FloatingInput id="customerName" label="Customer Name" required value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
-        <FloatingInput id="customerPhone" label="Phone" type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} />
-        <FloatingInput id="service" label="Service" value={service} onChange={(e) => setService(e.target.value)} />
-        <FloatingSelect id="source" label="Source" value={source} onChange={(e) => setSource(e.target.value)} options={SOURCE_OPTIONS} />
-        <FloatingInput id="potentialValue" label="Potential Value ($)" type="number" value={potentialValue} onChange={(e) => setPotentialValue(e.target.value)} />
-        <FloatingSelect id="status" label="Status" value={status} onChange={(e) => setStatus(e.target.value)} options={STATUS_OPTIONS} />
+        <FloatingInput
+          id="customerName"
+          label={t("leads.form.customerNameLabel")}
+          required
+          value={customerName}
+          onChange={(e) => setCustomerName(e.target.value)}
+        />
+        <FloatingInput id="customerPhone" label={t("leads.form.phoneLabel")} type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} />
+        <FloatingInput id="service" label={t("leads.form.serviceLabel")} value={service} onChange={(e) => setService(e.target.value)} />
+        <FloatingSelect id="source" label={t("leads.form.sourceLabel")} value={source} onChange={(e) => setSource(e.target.value)} options={SOURCE_OPTIONS} />
+        <FloatingInput id="potentialValue" label={t("leads.form.potentialValueLabel")} type="number" value={potentialValue} onChange={(e) => setPotentialValue(e.target.value)} />
+        <FloatingSelect id="status" label={t("leads.form.statusLabel")} value={status} onChange={(e) => setStatus(e.target.value)} options={STATUS_OPTIONS} />
         <div>
           <label htmlFor="lastContactAt" className="block text-on-surface-variant font-label-lg text-label-lg mb-1">
-            Last Contact
+            {t("leads.form.lastContactLabel")}
           </label>
           <input
             id="lastContactAt"
@@ -125,7 +125,7 @@ function LeadFormModal({ onClose, onSaved, salonId, initialLead }) {
           disabled={submitting}
           className="w-full bg-primary-container text-on-primary-container font-label-lg text-label-lg py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
         >
-          {submitting ? "Saving…" : isEdit ? "Save Changes" : "Save Lead"}
+          {submitting ? t("leads.form.saving") : isEdit ? t("leads.form.saveChanges") : t("leads.form.saveLead")}
         </button>
       </form>
     </div>
@@ -133,6 +133,7 @@ function LeadFormModal({ onClose, onSaved, salonId, initialLead }) {
 }
 
 function ConfirmDeleteModal({ lead, onCancel, onConfirm, deleting, error }) {
+  const { t } = useLanguage();
   return (
     <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center bg-black/40 px-4 pb-4 md:pb-0">
       <div className="w-full max-w-sm bg-surface-container-lowest rounded-[24px] p-6 soft-shadow border border-outline-variant/30 space-y-stack-md">
@@ -140,11 +141,19 @@ function ConfirmDeleteModal({ lead, onCancel, onConfirm, deleting, error }) {
           <div className="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0">
             <MaterialIcon name="delete" filled className="text-error" />
           </div>
-          <h2 className="font-headline-md text-headline-md text-primary">Delete Lead</h2>
+          <h2 className="font-headline-md text-headline-md text-primary">{t("leads.confirmDelete.title")}</h2>
         </div>
         <p className="font-body-md text-body-md text-on-surface-variant">
-          Are you sure you want to delete <span className="font-semibold text-on-surface">{lead.customer_name}</span>?
-          This can't be undone.
+          {(() => {
+            const [before, after] = t("leads.confirmDelete.body").split("{{name}}");
+            return (
+              <>
+                {before}
+                <span className="font-semibold text-on-surface">{lead.customer_name}</span>
+                {after}
+              </>
+            );
+          })()}
         </p>
         {error && <p className="font-body-md text-body-md text-error">{error}</p>}
         <div className="flex gap-3">
@@ -153,7 +162,7 @@ function ConfirmDeleteModal({ lead, onCancel, onConfirm, deleting, error }) {
             onClick={onCancel}
             className="flex-1 py-3 rounded-xl border border-surface-variant text-on-surface font-label-lg text-label-lg hover:bg-surface-variant transition-colors"
           >
-            Cancel
+            {t("leads.confirmDelete.cancel")}
           </button>
           <button
             type="button"
@@ -161,7 +170,7 @@ function ConfirmDeleteModal({ lead, onCancel, onConfirm, deleting, error }) {
             disabled={deleting}
             className="flex-1 py-3 rounded-xl bg-error text-on-error font-label-lg text-label-lg hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            {deleting ? "Deleting…" : "Delete"}
+            {deleting ? t("leads.confirmDelete.deleting") : t("leads.confirmDelete.delete")}
           </button>
         </div>
       </div>
@@ -171,6 +180,7 @@ function ConfirmDeleteModal({ lead, onCancel, onConfirm, deleting, error }) {
 
 export default function Leads() {
   const { salon } = useSalon();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("all");
   const [leads, setLeads] = useState([]);
@@ -180,6 +190,14 @@ export default function Leads() {
   const [deletingLead, setDeletingLead] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+
+  const FILTERS = [
+    { label: t("leads.filters.all"), value: "all" },
+    { label: t("statuses.new"), value: "new" },
+    { label: t("statuses.follow_up"), value: "follow_up" },
+    { label: t("statuses.booked"), value: "booked" },
+    { label: t("statuses.lost"), value: "lost" },
+  ];
 
   const refresh = () => {
     if (!salon) return;
@@ -210,9 +228,9 @@ export default function Leads() {
   return (
     <>
       <header className="px-container-padding pt-stack-lg pb-stack-md flex justify-between items-center bg-surface sticky top-0 z-30">
-        <h1 className="font-headline-lg text-headline-lg text-on-surface">Leads</h1>
+        <h1 className="font-headline-lg text-headline-lg text-on-surface">{t("leads.title")}</h1>
         <button
-          aria-label="Search leads"
+          aria-label={t("leads.searchAria")}
           className="w-10 h-10 rounded-full border border-surface-variant flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors"
         >
           <MaterialIcon name="search" />
@@ -220,7 +238,7 @@ export default function Leads() {
       </header>
 
       <div className="px-container-padding pb-stack-md overflow-x-auto hide-scrollbar">
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 rtl:space-x-reverse">
           {FILTERS.map((filter) => (
             <button
               key={filter.value}
@@ -239,19 +257,18 @@ export default function Leads() {
 
       <main className="px-container-padding flex flex-col gap-stack-md pb-40 relative z-10">
         {loading ? (
-          <p className="font-body-md text-body-md text-on-surface-variant">Loading leads…</p>
+          <p className="font-body-md text-body-md text-on-surface-variant">{t("leads.loading")}</p>
         ) : visibleLeads.length === 0 ? (
           <div className="bg-surface-container-lowest rounded-2xl p-8 soft-shadow border border-surface-variant text-center">
             <MaterialIcon name="person_search" className="text-on-surface-variant text-4xl mb-3" />
-            <p className="font-body-lg text-body-lg text-on-surface font-semibold mb-1">No leads yet</p>
-            <p className="font-body-md text-body-md text-on-surface-variant">
-              Leads from Instagram, WhatsApp, and your website will appear here once customers reach out.
-            </p>
+            <p className="font-body-lg text-body-lg text-on-surface font-semibold mb-1">{t("leads.emptyTitle")}</p>
+            <p className="font-body-md text-body-md text-on-surface-variant">{t("leads.emptyBody")}</p>
           </div>
         ) : (
           visibleLeads.map((lead) => {
-            const source = SOURCE_META[lead.source] ?? SOURCE_META.manual;
-            const status = STATUS_META[lead.status] ?? STATUS_META.new;
+            const source = SOURCE_CLASS[lead.source] ?? SOURCE_CLASS.manual;
+            const sourceLabel = t(`sources.${lead.source in SOURCE_CLASS ? lead.source : "manual"}`);
+            const statusLabel = t(`leads.statusMeta.${lead.status in STATUS_DOT ? lead.status : "new"}`);
             return (
               <div
                 key={lead.id}
@@ -267,23 +284,24 @@ export default function Leads() {
                         {lead.customer_name}
                       </h3>
                       <p className="font-body-md text-body-md text-on-surface-variant">
-                        {[lead.service, lead.potential_value ? `$${lead.potential_value}` : null].filter(Boolean).join(" • ") || "—"}
+                        {[lead.service, lead.potential_value ? `$${lead.potential_value}` : null].filter(Boolean).join(" • ") ||
+                          t("common.dash")}
                       </p>
                     </div>
                   </div>
                   <div className={`px-2 py-1 rounded font-label-sm text-label-sm flex items-center gap-1 ${source.className}`}>
                     {source.icon && <MaterialIcon name={source.icon} filled className="text-[12px]" />}
-                    {source.label}
+                    {sourceLabel}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 mb-4">
-                  <span className={`w-2 h-2 rounded-full ${status.dot}`} />
+                  <span className={`w-2 h-2 rounded-full ${STATUS_DOT[lead.status] ?? STATUS_DOT.new}`} />
                   <span
                     className={`font-label-lg text-label-lg uppercase tracking-wider text-[10px] ${
                       lead.status === "booked" ? "text-primary" : "text-on-surface-variant"
                     }`}
                   >
-                    {status.label}
+                    {statusLabel}
                   </span>
                 </div>
                 <div className="flex gap-3">
@@ -295,17 +313,17 @@ export default function Leads() {
                         : "bg-transparent border border-surface-variant text-on-surface hover:bg-surface-variant"
                     }`}
                   >
-                    {lead.status === "new" || lead.status === "follow_up" ? "Follow Up" : "View"}
+                    {lead.status === "new" || lead.status === "follow_up" ? t("leads.followUp") : t("leads.view")}
                   </button>
                   <button
-                    aria-label={`Edit ${lead.customer_name}`}
+                    aria-label={t("leads.editAria", { name: lead.customer_name })}
                     onClick={() => setEditingLead(lead)}
                     className="w-11 h-11 flex-shrink-0 rounded-lg border border-surface-variant flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors active:scale-95"
                   >
                     <MaterialIcon name="edit" className="text-[18px]" />
                   </button>
                   <button
-                    aria-label={`Delete ${lead.customer_name}`}
+                    aria-label={t("leads.deleteAria", { name: lead.customer_name })}
                     onClick={() => {
                       setDeleteError("");
                       setDeletingLead(lead);
@@ -322,9 +340,9 @@ export default function Leads() {
       </main>
 
       <button
-        aria-label="Add lead"
+        aria-label={t("leads.addAria")}
         onClick={() => setShowAddModal(true)}
-        className="fixed bottom-24 right-6 md:bottom-8 md:right-8 w-14 h-14 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center soft-shadow active:scale-90 transition-transform z-40"
+        className="fixed bottom-24 end-6 md:bottom-8 md:end-8 w-14 h-14 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center soft-shadow active:scale-90 transition-transform z-40"
       >
         <MaterialIcon name="add" className="text-[28px]" />
       </button>

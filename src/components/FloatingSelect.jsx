@@ -12,7 +12,7 @@ export default function FloatingSelect({ id, label, value, onChange, options, re
           value={value}
           onChange={onChange}
           required={required}
-          className="block w-full appearance-none px-0 py-3 pr-6 border-0 border-b border-outline-variant bg-transparent focus:ring-0 focus:border-primary text-on-surface font-body-lg"
+          className="block w-full appearance-none px-0 py-3 pe-6 border-0 border-b border-outline-variant bg-transparent focus:ring-0 focus:border-primary text-on-surface font-body-lg"
         >
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -22,7 +22,7 @@ export default function FloatingSelect({ id, label, value, onChange, options, re
         </select>
         <MaterialIcon
           name="expand_more"
-          className="absolute right-0 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[20px]"
+          className="absolute end-0 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[20px]"
         />
       </div>
     </div>

@@ -4,24 +4,26 @@ import MaterialIcon from "../components/icons/MaterialIcon.jsx";
 import Avatar from "../components/Avatar.jsx";
 import { useSalon } from "../lib/SalonContext.jsx";
 import { listLeads } from "../lib/api/leads.js";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 // Simple placeholder heuristic until real lead scoring exists: leads worth
 // $100+ are flagged "High Intent". No AI/automation involved.
 const HIGH_INTENT_THRESHOLD = 100;
 
-function timeAgo(dateString) {
+function timeAgo(dateString, t) {
   if (!dateString) return null;
   const diffMs = Date.now() - new Date(dateString).getTime();
   const hours = Math.round(diffMs / 3600000);
-  if (hours < 1) return "Just now";
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 1) return t("opportunities.justNow");
+  if (hours < 24) return t("opportunities.hoursAgo", { count: hours });
   const days = Math.round(hours / 24);
-  if (days === 1) return "Yesterday";
-  return `${days}d ago`;
+  if (days === 1) return t("opportunities.yesterday");
+  return t("opportunities.daysAgo", { count: days });
 }
 
 export default function Opportunities() {
   const { salon } = useSalon();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -69,9 +71,9 @@ export default function Opportunities() {
   return (
     <>
       <header className="bg-surface flex justify-between items-center px-container-padding pt-stack-lg pb-stack-md w-full sticky top-0 z-30">
-        <h1 className="font-headline-md text-headline-md text-primary">Opportunities</h1>
+        <h1 className="font-headline-md text-headline-md text-primary">{t("opportunities.title")}</h1>
         <button
-          aria-label="Notifications"
+          aria-label={t("common.notifications")}
           className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center hover:opacity-80 transition-opacity"
         >
           <MaterialIcon name="notifications" className="text-primary" />
@@ -80,20 +82,22 @@ export default function Opportunities() {
 
       <main className="flex-1 px-container-padding pb-40 space-y-stack-lg">
         <section className="bg-surface-container-lowest rounded-[24px] p-6 shadow-[0px_10px_30px_rgba(45,45,45,0.05)] border border-primary-container/30 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary-container opacity-20 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
+          <div className="absolute top-0 end-0 w-32 h-32 bg-primary-container opacity-20 rounded-full blur-3xl -me-10 -mt-10 pointer-events-none" />
           <div className="relative z-10 space-y-4">
             <div>
               <h2 className="font-headline-md text-headline-md text-on-surface">
-                {loading ? "…" : openLeads.length} Customer{openLeads.length === 1 ? "" : "s"} Ready to Recover
+                {loading
+                  ? "…"
+                  : openLeads.length === 1
+                    ? t("opportunities.readyToRecoverOne")
+                    : t("opportunities.readyToRecoverOther", { count: openLeads.length })}
               </h2>
-              <p className="font-body-md text-body-md text-on-surface-variant mt-1">
-                These customers showed interest but haven't booked yet.
-              </p>
+              <p className="font-body-md text-body-md text-on-surface-variant mt-1">{t("opportunities.readySubtitle")}</p>
             </div>
             <div className="grid grid-cols-2 gap-4 mt-6">
               <div className="space-y-1">
                 <span className="font-label-lg text-label-lg text-on-surface-variant uppercase tracking-widest">
-                  Potential Revenue
+                  {t("opportunities.potentialRevenue")}
                 </span>
                 <p className="font-headline-md text-headline-md text-primary">
                   ${loading ? "—" : potentialRevenue.toLocaleString()}
@@ -101,7 +105,7 @@ export default function Opportunities() {
               </div>
               <div className="space-y-1">
                 <span className="font-label-lg text-label-lg text-on-surface-variant uppercase tracking-widest">
-                  High-Intent Leads
+                  {t("opportunities.highIntentLeads")}
                 </span>
                 <p className="font-headline-md text-headline-md text-primary">{loading ? "—" : highIntentCount}</p>
               </div>
@@ -109,30 +113,31 @@ export default function Opportunities() {
             <div className="pt-2">
               <div className="inline-flex items-center gap-2 bg-error-container text-on-error-container px-3 py-1.5 rounded-full">
                 <MaterialIcon name="schedule" className="text-[16px]" />
-                <span className="font-label-lg text-label-lg">Follow-ups Due: {loading ? "—" : followUpsDue}</span>
+                <span className="font-label-lg text-label-lg">
+                  {t("opportunities.followUpsDue", { count: loading ? "—" : followUpsDue })}
+                </span>
               </div>
             </div>
           </div>
         </section>
 
         <section className="space-y-stack-md">
-          <h3 className="font-headline-md text-[20px] leading-tight text-on-surface">Top Opportunities</h3>
+          <h3 className="font-headline-md text-[20px] leading-tight text-on-surface">{t("opportunities.topOpportunities")}</h3>
 
           {loading ? (
-            <p className="font-body-md text-body-md text-on-surface-variant">Loading…</p>
+            <p className="font-body-md text-body-md text-on-surface-variant">{t("common.loading")}</p>
           ) : error ? (
             <p className="font-body-md text-body-md text-error">{error}</p>
           ) : topOpportunities.length === 0 ? (
             <div className="bg-surface-container-lowest rounded-[24px] p-8 soft-shadow border border-surface-variant text-center">
               <MaterialIcon name="trending_up" className="text-on-surface-variant text-4xl mb-3" />
-              <p className="font-body-md text-body-md text-on-surface-variant">
-                No open opportunities yet. New and follow-up leads will show up here.
-              </p>
+              <p className="font-body-md text-body-md text-on-surface-variant">{t("opportunities.emptyBody")}</p>
             </div>
           ) : (
             <div className="space-y-4">
               {topOpportunities.map((lead) => {
                 const highIntent = (Number(lead.potential_value) || 0) >= HIGH_INTENT_THRESHOLD;
+                const sourceLabel = lead.source ? t(`sources.${lead.source}`) : null;
                 return (
                   <article
                     key={lead.id}
@@ -144,13 +149,13 @@ export default function Opportunities() {
                         <div>
                           <h4 className="font-label-lg text-body-lg text-on-surface font-semibold">{lead.customer_name}</h4>
                           <p className="font-body-md text-label-lg text-on-surface-variant">
-                            {[lead.service, lead.source].filter(Boolean).join(" • ") || "—"}
+                            {[lead.service, sourceLabel].filter(Boolean).join(" • ") || t("common.dash")}
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-end">
                         <span className="font-label-lg text-label-lg text-on-surface font-semibold">
-                          {lead.potential_value ? `$${lead.potential_value}` : "—"}
+                          {lead.potential_value ? `$${lead.potential_value}` : t("common.dash")}
                         </span>
                       </div>
                     </div>
@@ -161,17 +166,19 @@ export default function Opportunities() {
                         }`}
                       >
                         {highIntent && <span className="text-[12px]">🔥</span>}
-                        {highIntent ? "High Intent" : "Medium Intent"}
+                        {highIntent ? t("opportunities.highIntent") : t("opportunities.mediumIntent")}
                       </span>
-                      <span className="font-label-sm text-label-sm text-on-surface-variant ml-auto">
-                        {lead.last_contact_at ? `Last contact: ${timeAgo(lead.last_contact_at)}` : "Not contacted yet"}
+                      <span className="font-label-sm text-label-sm text-on-surface-variant ms-auto">
+                        {lead.last_contact_at
+                          ? t("opportunities.lastContact", { time: timeAgo(lead.last_contact_at, t) })
+                          : t("opportunities.notContacted")}
                       </span>
                     </div>
                     <button
                       onClick={() => navigate(`/conversations/${lead.id}`)}
                       className="w-full py-3 mt-1 border border-outline-variant rounded-xl font-label-lg text-label-lg text-on-surface hover:bg-surface-variant transition-colors"
                     >
-                      Review
+                      {t("opportunities.review")}
                     </button>
                   </article>
                 );
@@ -181,25 +188,29 @@ export default function Opportunities() {
         </section>
 
         <section className="bg-surface-container-lowest rounded-[24px] p-6 shadow-[0px_10px_30px_rgba(45,45,45,0.05)] space-y-5">
-          <h3 className="font-headline-md text-[20px] leading-tight text-on-surface">Recovered This Month</h3>
+          <h3 className="font-headline-md text-[20px] leading-tight text-on-surface">{t("opportunities.recoveredThisMonth")}</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest block mb-1">
-                Bookings
+                {t("opportunities.bookings")}
               </span>
               <span className="font-headline-md text-[20px] text-on-surface">{loading ? "—" : bookedThisMonth.length}</span>
             </div>
             <div>
               <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest block mb-1">
-                Revenue
+                {t("opportunities.revenue")}
               </span>
               <span className="font-headline-md text-[20px] text-primary">${loading ? "—" : recoveredRevenue.toLocaleString()}</span>
             </div>
           </div>
           <div className="space-y-2 pt-2">
             <div className="flex justify-between font-label-sm text-label-sm">
-              <span className="text-on-surface-variant">Potential (${potentialRevenue.toLocaleString()})</span>
-              <span className="text-primary font-semibold">Recovered (${recoveredRevenue.toLocaleString()})</span>
+              <span className="text-on-surface-variant">
+                {t("opportunities.potentialBar", { amount: potentialRevenue.toLocaleString() })}
+              </span>
+              <span className="text-primary font-semibold">
+                {t("opportunities.recoveredBar", { amount: recoveredRevenue.toLocaleString() })}
+              </span>
             </div>
             <div className="h-2 w-full bg-surface-container rounded-full overflow-hidden flex">
               <div className="h-full bg-secondary-fixed-dim" style={{ width: `${potentialPct}%` }} />

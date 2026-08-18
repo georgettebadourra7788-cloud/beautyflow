@@ -7,11 +7,13 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 import { useSalon } from "../../lib/SalonContext.jsx";
 import { supabase } from "../../lib/supabaseClient.js";
 import { createSalon } from "../../lib/api/salons.js";
+import { useLanguage } from "../../i18n/LanguageContext.jsx";
 
 export default function StepSalonInfo() {
   const navigate = useNavigate();
   const { user, profile, refreshProfile } = useAuth();
   const { setSalon } = useSalon();
+  const { t } = useLanguage();
   const [salonName, setSalonName] = useState("");
   const [ownerName, setOwnerName] = useState(profile?.full_name ?? "");
   const [phone, setPhone] = useState("");
@@ -21,7 +23,7 @@ export default function StepSalonInfo() {
   const handleContinue = async () => {
     setError("");
     if (!salonName.trim()) {
-      setError("Salon name is required.");
+      setError(t("onboarding.salonInfo.nameRequired"));
       return;
     }
     setSubmitting(true);
@@ -52,20 +54,31 @@ export default function StepSalonInfo() {
       totalSteps={3}
       onContinue={handleContinue}
       continueDisabled={submitting}
-      continueLabel={submitting ? "SAVING…" : "CONTINUE"}
+      continueLabel={submitting ? t("onboarding.salonInfo.saving") : t("onboarding.salonInfo.continue")}
       error={error}
     >
       <section className="bg-surface-container-lowest rounded-[24px] p-6 soft-shadow border border-outline-variant/30">
         <div className="flex items-center justify-between mb-stack-md">
-          <h2 className="font-headline-md text-headline-md text-primary">Salon Information</h2>
+          <h2 className="font-headline-md text-headline-md text-primary">{t("onboarding.salonInfo.heading")}</h2>
           <MaterialIcon name="check_circle" filled className="text-primary-container" />
         </div>
         <div className="space-y-stack-md">
-          <FloatingInput id="salonName" label="Salon Name" required value={salonName} onChange={(e) => setSalonName(e.target.value)} />
-          <FloatingInput id="ownerName" label="Owner Name" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} />
+          <FloatingInput
+            id="salonName"
+            label={t("onboarding.salonInfo.salonNameLabel")}
+            required
+            value={salonName}
+            onChange={(e) => setSalonName(e.target.value)}
+          />
+          <FloatingInput
+            id="ownerName"
+            label={t("onboarding.salonInfo.ownerNameLabel")}
+            value={ownerName}
+            onChange={(e) => setOwnerName(e.target.value)}
+          />
           <FloatingInput
             id="phoneNumber"
-            label="Phone Number"
+            label={t("onboarding.salonInfo.phoneLabel")}
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
@@ -75,11 +88,15 @@ export default function StepSalonInfo() {
 
       <section className="opacity-50 pointer-events-none space-y-stack-md">
         <div className="bg-surface-container-lowest rounded-[24px] p-6 soft-shadow flex justify-between items-center">
-          <h2 className="font-headline-md text-headline-md text-on-surface-variant">Services</h2>
+          <h2 className="font-headline-md text-headline-md text-on-surface-variant">
+            {t("onboarding.salonInfo.servicesPreview")}
+          </h2>
           <MaterialIcon name="spa" className="text-outline-variant" />
         </div>
         <div className="bg-surface-container-lowest rounded-[24px] p-6 soft-shadow flex justify-between items-center">
-          <h2 className="font-headline-md text-headline-md text-on-surface-variant">Business Information</h2>
+          <h2 className="font-headline-md text-headline-md text-on-surface-variant">
+            {t("onboarding.salonInfo.businessInfoPreview")}
+          </h2>
           <MaterialIcon name="storefront" className="text-outline-variant" />
         </div>
       </section>

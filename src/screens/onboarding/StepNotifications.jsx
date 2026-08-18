@@ -2,16 +2,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MaterialIcon from "../../components/icons/MaterialIcon.jsx";
 import OnboardingLayout from "./OnboardingLayout.jsx";
+import { useLanguage } from "../../i18n/LanguageContext.jsx";
 
-const DEFAULT_PREFS = [
-  { key: "newLead", label: "New Lead Alerts", desc: "Get notified when a new inquiry comes in", on: true },
-  { key: "followUp", label: "Follow-up Reminders", desc: "Reminders for leads waiting on a reply", on: true },
-  { key: "weeklySummary", label: "Weekly Summary", desc: "A recap of recovered bookings each week", on: false },
-];
+const PREF_KEYS = ["newLead", "followUp", "weeklySummary"];
+const DEFAULT_ON = { newLead: true, followUp: true, weeklySummary: false };
 
 export default function StepNotifications() {
   const navigate = useNavigate();
-  const [prefs, setPrefs] = useState(DEFAULT_PREFS);
+  const { t } = useLanguage();
+  const [prefs, setPrefs] = useState(PREF_KEYS.map((key) => ({ key, on: DEFAULT_ON[key] })));
 
   const toggle = (key) => {
     setPrefs((prev) => prev.map((p) => (p.key === key ? { ...p, on: !p.on } : p)));
@@ -21,15 +20,19 @@ export default function StepNotifications() {
     <OnboardingLayout step={4} onContinue={() => navigate("/onboarding/connect")}>
       <section className="bg-surface-container-lowest rounded-[24px] p-6 soft-shadow border border-outline-variant/30">
         <div className="flex items-center justify-between mb-stack-md">
-          <h2 className="font-headline-md text-headline-md text-primary">Notifications</h2>
+          <h2 className="font-headline-md text-headline-md text-primary">{t("onboarding.notifications.heading")}</h2>
           <MaterialIcon name="notifications" filled className="text-primary-container" />
         </div>
         <div className="space-y-stack-md">
           {prefs.map((pref) => (
             <div key={pref.key} className="flex items-center justify-between py-3 border-b border-outline-variant/30 last:border-b-0">
               <div>
-                <h3 className="font-body-lg text-body-lg text-on-surface font-semibold">{pref.label}</h3>
-                <p className="font-body-md text-body-md text-on-surface-variant mt-1">{pref.desc}</p>
+                <h3 className="font-body-lg text-body-lg text-on-surface font-semibold">
+                  {t(`onboarding.notifications.${pref.key}.label`)}
+                </h3>
+                <p className="font-body-md text-body-md text-on-surface-variant mt-1">
+                  {t(`onboarding.notifications.${pref.key}.desc`)}
+                </p>
               </div>
               <button
                 onClick={() => toggle(pref.key)}

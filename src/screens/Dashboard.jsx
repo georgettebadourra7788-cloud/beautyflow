@@ -5,17 +5,19 @@ import Avatar from "../components/Avatar.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useSalon } from "../lib/SalonContext.jsx";
 import { listLeads } from "../lib/api/leads.js";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
-const STATUS_META = {
-  new: { label: "New", className: "bg-surface-container-high text-on-surface-variant" },
-  follow_up: { label: "Follow-up", className: "bg-[#FFE4E1] text-[#D84B4B]" },
-  booked: { label: "Booked", className: "bg-[#E8F5E9] text-[#2E7D32]" },
-  lost: { label: "Lost", className: "bg-surface-container text-on-surface-variant" },
+const STATUS_CLASS = {
+  new: "bg-surface-container-high text-on-surface-variant",
+  follow_up: "bg-[#FFE4E1] text-[#D84B4B]",
+  booked: "bg-[#E8F5E9] text-[#2E7D32]",
+  lost: "bg-surface-container text-on-surface-variant",
 };
 
 export default function Dashboard() {
   const { profile } = useAuth();
   const { salon } = useSalon();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,11 +45,11 @@ export default function Dashboard() {
     .reduce((sum, l) => sum + (Number(l.potential_value) || 0), 0);
 
   const KPIS = [
-    { label: "New Leads", value: newLeads.length, icon: "person_add", iconWrap: "bg-primary-container/30", iconColor: "text-primary" },
-    { label: "Follow-ups Due", value: followUpsDue.length, icon: "event_available", iconWrap: "bg-tertiary-container/30", iconColor: "text-tertiary" },
-    { label: "Recovered Bookings", value: recoveredBookings.length, icon: "refresh", iconWrap: "bg-surface-container-highest", iconColor: "text-secondary" },
+    { label: t("dashboard.kpis.newLeads"), value: newLeads.length, icon: "person_add", iconWrap: "bg-primary-container/30", iconColor: "text-primary" },
+    { label: t("dashboard.kpis.followUpsDue"), value: followUpsDue.length, icon: "event_available", iconWrap: "bg-tertiary-container/30", iconColor: "text-tertiary" },
+    { label: t("dashboard.kpis.recoveredBookings"), value: recoveredBookings.length, icon: "refresh", iconWrap: "bg-surface-container-highest", iconColor: "text-secondary" },
     {
-      label: "Estimated Revenue",
+      label: t("dashboard.kpis.estimatedRevenue"),
       value: `$${estimatedRevenue.toLocaleString()}`,
       icon: "payments",
       iconWrap: "bg-primary-container",
@@ -58,7 +60,7 @@ export default function Dashboard() {
   ];
 
   const todaysFollowUps = followUpsDue.slice(0, 3);
-  const firstName = profile?.full_name?.split(" ")[0] || "there";
+  const firstName = profile?.full_name?.split(" ")[0] || t("dashboard.defaultFirstName");
 
   return (
     <>
@@ -71,14 +73,18 @@ export default function Dashboard() {
             initial={firstName.charAt(0).toUpperCase()}
           />
           <div>
-            <h1 className="font-headline-md text-headline-md text-primary truncate">Good morning, {firstName} 👋</h1>
+            <h1 className="font-headline-md text-headline-md text-primary truncate">
+              {t("dashboard.greeting", { firstName })}
+            </h1>
             <p className="font-body-md text-body-md text-on-surface-variant">
-              {salon?.name ? `Here's what's happening at ${salon.name}.` : "Here's what's happening at your salon."}
+              {salon?.name
+                ? t("dashboard.subtitleWithSalon", { salonName: salon.name })
+                : t("dashboard.subtitleNoSalon")}
             </p>
           </div>
         </div>
         <button
-          aria-label="Notifications"
+          aria-label={t("common.notifications")}
           className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors text-primary flex-shrink-0"
         >
           <MaterialIcon name="notifications" />
@@ -102,7 +108,7 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className={`font-display text-display ${kpi.valueColor || "text-on-surface"}`}>
-                  {loading ? "—" : kpi.value}
+                  {loading ? t("common.dash") : kpi.value}
                 </div>
               </div>
             ))}
@@ -111,59 +117,58 @@ export default function Dashboard() {
 
         <section className="flex flex-col gap-stack-md">
           <div className="flex justify-between items-center mb-1">
-            <h2 className="font-body-lg text-[18px] font-semibold text-on-surface">Today's Follow-ups</h2>
+            <h2 className="font-body-lg text-[18px] font-semibold text-on-surface">{t("dashboard.todaysFollowUps")}</h2>
             <button
               onClick={() => navigate("/leads")}
               className="font-label-lg text-label-lg text-primary uppercase hover:opacity-80 transition-opacity"
             >
-              View All
+              {t("dashboard.viewAll")}
             </button>
           </div>
 
           {loading ? (
-            <p className="font-body-md text-body-md text-on-surface-variant">Loading…</p>
+            <p className="font-body-md text-body-md text-on-surface-variant">{t("common.loading")}</p>
           ) : todaysFollowUps.length === 0 ? (
             <div className="bg-surface-container-lowest rounded-xl p-6 soft-shadow border border-surface-variant/50 text-center">
               <MaterialIcon name="event_available" className="text-on-surface-variant text-3xl mb-2" />
-              <p className="font-body-md text-body-md text-on-surface-variant">
-                No follow-ups due right now. New leads will show up here.
-              </p>
+              <p className="font-body-md text-body-md text-on-surface-variant">{t("dashboard.noFollowUps")}</p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {todaysFollowUps.map((lead) => {
-                const status = STATUS_META[lead.status] ?? STATUS_META.new;
-                return (
-                  <div
-                    key={lead.id}
-                    className="bg-surface-container-lowest rounded-xl p-4 soft-shadow border border-surface-variant/50 flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-4">
-                      <Avatar initial={lead.customer_name.charAt(0).toUpperCase()} alt={lead.customer_name} />
-                      <div>
-                        <div className="font-body-lg font-semibold text-on-surface leading-tight">
-                          {lead.customer_name}
-                        </div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="font-label-lg text-label-lg text-on-surface-variant">
-                            {lead.service || "—"}
-                          </span>
-                          <span className="w-1 h-1 rounded-full bg-surface-variant" />
-                          <span className={`font-label-sm text-label-sm px-2 py-0.5 rounded-full ${status.className}`}>
-                            {status.label}
-                          </span>
-                        </div>
+              {todaysFollowUps.map((lead) => (
+                <div
+                  key={lead.id}
+                  className="bg-surface-container-lowest rounded-xl p-4 soft-shadow border border-surface-variant/50 flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-4">
+                    <Avatar initial={lead.customer_name.charAt(0).toUpperCase()} alt={lead.customer_name} />
+                    <div>
+                      <div className="font-body-lg font-semibold text-on-surface leading-tight">
+                        {lead.customer_name}
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="font-label-lg text-label-lg text-on-surface-variant">
+                          {lead.service || t("common.dash")}
+                        </span>
+                        <span className="w-1 h-1 rounded-full bg-surface-variant" />
+                        <span
+                          className={`font-label-sm text-label-sm px-2 py-0.5 rounded-full ${
+                            STATUS_CLASS[lead.status] ?? STATUS_CLASS.new
+                          }`}
+                        >
+                          {t(`statuses.${lead.status}`)}
+                        </span>
                       </div>
                     </div>
-                    <button
-                      onClick={() => navigate(`/conversations/${lead.id}`)}
-                      className="font-label-lg text-label-lg px-4 py-2 rounded-lg hover:opacity-90 transition-opacity bg-primary-container text-on-primary-container"
-                    >
-                      Follow Up
-                    </button>
                   </div>
-                );
-              })}
+                  <button
+                    onClick={() => navigate(`/conversations/${lead.id}`)}
+                    className="font-label-lg text-label-lg px-4 py-2 rounded-lg hover:opacity-90 transition-opacity bg-primary-container text-on-primary-container"
+                  >
+                    {t("dashboard.followUp")}
+                  </button>
+                </div>
+              ))}
             </div>
           )}
         </section>

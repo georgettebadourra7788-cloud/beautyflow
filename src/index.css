@@ -8,6 +8,10 @@
 @import "@fontsource/inter/400.css";
 @import "@fontsource/inter/500.css";
 @import "@fontsource/inter/600.css";
+@import "@fontsource/cairo/400.css";
+@import "@fontsource/cairo/500.css";
+@import "@fontsource/cairo/600.css";
+@import "@fontsource/cairo/700.css";
 @import "material-symbols/outlined.css";
 
 /* ---- BeautyFlow design tokens (from Stitch export: Haute-Modern Professional) ---- */
@@ -125,6 +129,29 @@ body {
 
 html {
   overflow-x: hidden;
+}
+
+/* Arabic UI uses Cairo (premium, mobile-friendly Arabic sans-serif) in
+   place of the Latin-only Playfair Display / Inter pairing. Overriding the
+   theme's font custom properties here means every "font-headline-*" /
+   "font-body-*" / "font-label-*" utility picks this up automatically,
+   with no per-component changes needed. */
+html[lang="ar"] {
+  --font-display: "Cairo", "Playfair Display", sans-serif;
+  --font-headline-lg: "Cairo", "Playfair Display", sans-serif;
+  --font-headline-md: "Cairo", "Playfair Display", sans-serif;
+  --font-body-lg: "Cairo", "Inter", sans-serif;
+  --font-body-md: "Cairo", "Inter", sans-serif;
+  --font-label-lg: "Cairo", "Inter", sans-serif;
+  --font-label-sm: "Cairo", "Inter", sans-serif;
+}
+
+/* Directional icons (back/forward chevrons and arrows) point the wrong way
+   once the layout mirrors under RTL; MaterialIcon tags them with this class
+   so they flip along with the reading direction. */
+[dir="rtl"] .rtl-flip {
+  display: inline-block;
+  transform: scaleX(-1);
 }
 
 .soft-shadow {

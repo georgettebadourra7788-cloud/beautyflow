@@ -13,7 +13,7 @@ export default function FloatingInput({ id, label, type = "text", value, onChang
       />
       <label
         htmlFor={id}
-        className="absolute left-0 -top-2.5 text-on-surface-variant font-label-lg text-label-lg transition-all peer-placeholder-shown:text-body-lg peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-label-lg peer-focus:text-primary"
+        className="absolute start-0 -top-2.5 text-on-surface-variant font-label-lg text-label-lg transition-all peer-placeholder-shown:text-body-lg peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-label-lg peer-focus:text-primary"
       >
         {label}
       </label>

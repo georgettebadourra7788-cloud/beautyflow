@@ -1,23 +1,28 @@
 import MaterialIcon from "../../components/icons/MaterialIcon.jsx";
+import { useLanguage } from "../../i18n/LanguageContext.jsx";
 
 export default function OnboardingLayout({
   step,
   totalSteps = 5,
-  title = "Set Up Your Salon",
-  subtitle = "Let's personalize BeautyFlow for your business.",
-  continueLabel = "CONTINUE",
+  title,
+  subtitle,
+  continueLabel,
   continueIcon = "arrow_forward",
   continueDisabled = false,
   error,
   onContinue,
   children,
 }) {
+  const { t } = useLanguage();
   const TOTAL_STEPS = totalSteps;
+  const resolvedTitle = title ?? t("onboarding.layout.defaultTitle");
+  const resolvedSubtitle = subtitle ?? t("onboarding.layout.defaultSubtitle");
+  const resolvedContinueLabel = continueLabel ?? t("onboarding.layout.continue");
   return (
     <div className="w-full max-w-md md:max-w-lg mx-auto min-h-screen flex flex-col bg-surface relative shadow-2xl md:shadow-none">
       <header className="pt-12 px-container-padding pb-stack-lg flex-shrink-0">
-        <h1 className="font-display text-display text-primary mb-stack-sm tracking-tight leading-tight">{title}</h1>
-        <p className="font-body-lg text-body-lg text-on-surface-variant">{subtitle}</p>
+        <h1 className="font-display text-display text-primary mb-stack-sm tracking-tight leading-tight">{resolvedTitle}</h1>
+        <p className="font-body-lg text-body-lg text-on-surface-variant">{resolvedSubtitle}</p>
       </header>
 
       <main className="flex-grow px-container-padding pb-40 overflow-y-auto hide-scrollbar space-y-stack-lg">
@@ -28,7 +33,7 @@ export default function OnboardingLayout({
         <div className="w-full max-w-md md:max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-4">
             <span className="font-label-lg text-label-lg text-on-surface-variant uppercase tracking-wider">
-              Step {step} of {TOTAL_STEPS}
+              {t("onboarding.layout.step", { step, total: TOTAL_STEPS })}
             </span>
             <div className="flex gap-1">
               {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map((s) => (
@@ -47,7 +52,7 @@ export default function OnboardingLayout({
             disabled={continueDisabled}
             className="w-full bg-primary-container text-on-primary-container font-label-lg text-label-lg py-4 rounded-xl flex justify-center items-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all mb-4 disabled:opacity-50"
           >
-            {continueLabel}
+            {resolvedContinueLabel}
             <MaterialIcon name={continueIcon} className="text-[18px]" />
           </button>
         </div>

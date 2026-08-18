@@ -5,10 +5,12 @@ import MaterialIcon from "../../components/icons/MaterialIcon.jsx";
 import OnboardingLayout from "./OnboardingLayout.jsx";
 import { useSalon } from "../../lib/SalonContext.jsx";
 import { addServices } from "../../lib/api/salons.js";
+import { useLanguage } from "../../i18n/LanguageContext.jsx";
 
 export default function StepServices() {
   const navigate = useNavigate();
   const { salon, loading } = useSalon();
+  const { t } = useLanguage();
   const [services, setServices] = useState([]);
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -48,18 +50,18 @@ export default function StepServices() {
       totalSteps={3}
       onContinue={handleContinue}
       continueDisabled={submitting}
-      continueLabel={submitting ? "SAVING…" : "CONTINUE"}
+      continueLabel={submitting ? t("onboarding.services.saving") : t("onboarding.services.continue")}
       error={error}
     >
       <section className="bg-surface-container-lowest rounded-[24px] p-6 soft-shadow border border-outline-variant/30">
         <div className="flex items-center justify-between mb-stack-md">
-          <h2 className="font-headline-md text-headline-md text-primary">Services</h2>
+          <h2 className="font-headline-md text-headline-md text-primary">{t("onboarding.services.heading")}</h2>
           <MaterialIcon name="spa" filled className="text-primary-container" />
         </div>
 
         {services.length === 0 ? (
           <p className="font-body-md text-body-md text-on-surface-variant mb-stack-md">
-            Add the services your salon offers, so BeautyFlow can estimate the value of each lead.
+            {t("onboarding.services.helper")}
           </p>
         ) : (
           <div className="space-y-stack-sm mb-stack-md">
@@ -71,11 +73,11 @@ export default function StepServices() {
                 <span className="font-body-lg text-body-lg text-on-surface font-semibold">{service.name}</span>
                 <div className="flex items-center gap-3">
                   <span className="font-label-lg text-label-lg text-on-surface-variant">
-                    {service.price ? `$${service.price}` : "—"}
+                    {service.price ? `$${service.price}` : t("common.dash")}
                   </span>
                   <button
                     type="button"
-                    aria-label={`Remove ${service.name}`}
+                    aria-label={t("onboarding.services.removeAria", { name: service.name })}
                     onClick={() => handleRemove(index)}
                     className="text-on-surface-variant hover:text-error transition-colors"
                   >
@@ -89,10 +91,21 @@ export default function StepServices() {
 
         <div className="flex gap-3 items-end">
           <div className="flex-1">
-            <FloatingInput id="serviceName" label="Service name" value={name} onChange={(e) => setName(e.target.value)} />
+            <FloatingInput
+              id="serviceName"
+              label={t("onboarding.services.nameLabel")}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
           </div>
           <div className="w-24">
-            <FloatingInput id="servicePrice" label="Price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
+            <FloatingInput
+              id="servicePrice"
+              label={t("onboarding.services.priceLabel")}
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
           </div>
         </div>
         <button
@@ -101,13 +114,15 @@ export default function StepServices() {
           className="w-full mt-stack-md py-3 rounded-xl border border-dashed border-outline-variant text-on-surface-variant font-label-lg text-label-lg flex items-center justify-center gap-2 hover:bg-surface-container transition-colors"
         >
           <MaterialIcon name="add" className="text-[18px]" />
-          Add Service
+          {t("onboarding.services.addService")}
         </button>
       </section>
 
       <section className="opacity-50 pointer-events-none space-y-stack-md">
         <div className="bg-surface-container-lowest rounded-[24px] p-6 soft-shadow flex justify-between items-center">
-          <h2 className="font-headline-md text-headline-md text-on-surface-variant">Business Information</h2>
+          <h2 className="font-headline-md text-headline-md text-on-surface-variant">
+            {t("onboarding.services.businessInfoPreview")}
+          </h2>
           <MaterialIcon name="storefront" className="text-outline-variant" />
         </div>
       </section>

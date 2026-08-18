@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import MaterialIcon from "../../components/icons/MaterialIcon.jsx";
 import { useSalon } from "../../lib/SalonContext.jsx";
+import { useLanguage } from "../../i18n/LanguageContext.jsx";
 
 export default function OnboardingComplete() {
   const navigate = useNavigate();
   const { salon } = useSalon();
+  const { t } = useLanguage();
 
   return (
     <main className="flex-grow flex flex-col max-w-md md:max-w-lg w-full mx-auto relative overflow-hidden min-h-screen bg-surface-bright">
@@ -17,11 +19,12 @@ export default function OnboardingComplete() {
             <MaterialIcon name="check_circle" filled className="text-5xl text-primary" />
           </div>
           <h1 className="font-display text-[34px] leading-tight text-on-surface mb-stack-md">
-            Your BeautyFlow workspace is ready.
+            {t("onboarding.complete.heading")}
           </h1>
           <p className="font-body-lg text-[15px] text-on-surface-variant max-w-[300px] mx-auto opacity-90">
-            We've tailored the experience to {salon?.name ?? "your salon"}. You're all set to start recovering
-            missed bookings.
+            {t("onboarding.complete.body", {
+              salonName: salon?.name ?? t("onboarding.complete.defaultSalon"),
+            })}
           </p>
         </div>
       </div>
@@ -30,7 +33,7 @@ export default function OnboardingComplete() {
           onClick={() => navigate("/dashboard")}
           className="w-full bg-primary-container text-on-primary-container font-label-lg text-[11px] uppercase py-4 px-6 rounded-xl shadow-[0px_4px_10px_rgba(45,45,45,0.03)] hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
         >
-          <span>Go to Dashboard</span>
+          <span>{t("onboarding.complete.goToDashboard")}</span>
           <MaterialIcon name="arrow_forward" className="text-[18px]" />
         </button>
       </div>

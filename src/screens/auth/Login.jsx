@@ -3,9 +3,11 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import FloatingInput from "../../components/FloatingInput.jsx";
 import MaterialIcon from "../../components/icons/MaterialIcon.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { useLanguage } from "../../i18n/LanguageContext.jsx";
 
 export default function Login() {
   const { signIn, isSupabaseConfigured } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState("");
@@ -33,21 +35,23 @@ export default function Login() {
           <div className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-primary-container text-on-primary-container mb-stack-md font-headline-md text-headline-md tracking-tight">
             BeautyFlow
           </div>
-          <h1 className="font-display text-[34px] leading-tight text-primary mb-stack-sm">Welcome back</h1>
-          <p className="font-body-lg text-body-lg text-on-surface-variant">Log in to your BeautyFlow workspace.</p>
+          <h1 className="font-display text-[34px] leading-tight text-primary mb-stack-sm">{t("auth.login.title")}</h1>
+          <p className="font-body-lg text-body-lg text-on-surface-variant">{t("auth.login.subtitle")}</p>
         </div>
 
         {!isSupabaseConfigured && (
           <div className="mb-stack-md bg-error-container text-on-error-container rounded-xl p-4 font-body-md text-body-md">
-            Supabase isn't configured yet. Set <code>VITE_SUPABASE_URL</code> and{" "}
-            <code>VITE_SUPABASE_ANON_KEY</code> in your <code>.env.local</code> file, then restart the dev server.
+            {t("auth.supabaseNotConfigured", {
+              urlVar: "VITE_SUPABASE_URL",
+              keyVar: "VITE_SUPABASE_ANON_KEY",
+            })}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="bg-surface-container-lowest rounded-[24px] p-6 soft-shadow border border-outline-variant/30 space-y-stack-md">
           <FloatingInput
             id="email"
-            label="Email"
+            label={t("auth.login.emailLabel")}
             type="email"
             autoComplete="email"
             required
@@ -56,7 +60,7 @@ export default function Login() {
           />
           <FloatingInput
             id="password"
-            label="Password"
+            label={t("auth.login.passwordLabel")}
             type="password"
             autoComplete="current-password"
             required
@@ -71,15 +75,15 @@ export default function Login() {
             disabled={submitting || !isSupabaseConfigured}
             className="w-full bg-primary-container text-on-primary-container font-label-lg text-label-lg py-4 rounded-xl flex justify-center items-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50"
           >
-            {submitting ? "Logging in…" : "LOG IN"}
+            {submitting ? t("auth.login.submitting") : t("auth.login.submit")}
             {!submitting && <MaterialIcon name="arrow_forward" className="text-[18px]" />}
           </button>
         </form>
 
         <p className="text-center mt-stack-lg font-body-md text-body-md text-on-surface-variant">
-          New to BeautyFlow?{" "}
+          {t("auth.login.noAccount")}{" "}
           <Link to="/signup" className="text-primary font-semibold hover:opacity-80 transition-opacity">
-            Create an account
+            {t("auth.login.createAccount")}
           </Link>
         </p>
       </div>
