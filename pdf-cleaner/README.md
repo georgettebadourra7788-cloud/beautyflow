@@ -21,6 +21,49 @@ backend, no upload, no server costs.
 It does not touch PDF metadata, compress files, or remove blank pages —
 this is purely a text-extraction cleaner, not a general PDF utility.
 
+**No PDF you drop ever leaves your browser.** Extraction and cleaning run
+entirely client-side (via `pdf.js`); nothing is uploaded anywhere, to
+Firebase or otherwise.
+
+## Firebase (optional, for future features)
+
+Firebase is wired up but **not required** to run the app today — the PDF
+cleaning flow works fully offline. It's prepared for later, not-yet-built
+features:
+
+- Firebase Authentication — user accounts
+- Cloud Firestore — payment/entitlement and lifetime-purchase status
+
+There is no Cloud Storage usage and no Cloud Functions — nothing backend
+beyond Auth and Firestore, and neither is used by any screen yet.
+
+To set it up (optional):
+
+1. Create a project at [the Firebase console](https://console.firebase.google.com).
+2. Add a Web app to the project (Project Settings -> General -> Your apps),
+   and copy the config values it gives you.
+3. Copy `.env.example` to `.env.local` and fill in the `VITE_FIREBASE_*`
+   values.
+4. Restart `npm run dev`.
+
+Firebase config values (API key, project ID, etc.) are safe to expose in
+frontend code the same way a Firebase web app config always is — access is
+enforced by Firestore/Auth security rules, not by keeping these secret.
+
+### Deploying to Firebase Hosting
+
+This repo includes a minimal `firebase.json` (serves `dist/` as a static
+SPA) and a placeholder `.firebaserc` — replace `your-firebase-project-id`
+with your real project ID before deploying:
+
+```bash
+npm run build
+npx firebase-tools deploy --only hosting
+```
+
+Any other static host (Vercel, Netlify, GitHub Pages, ...) works just as
+well; Firebase Hosting isn't required.
+
 ## Running it locally
 
 ```bash
